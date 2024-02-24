@@ -209,4 +209,24 @@ public class Elevator implements Runnable {
         }
         return this.floorNumber - 1;
     }
+
+    public Direction getDirection() {
+        return direction;
+    }
+
+    public int getFloorNumber() {
+        return floorNumber;
+    }
+
+    public boolean isMotorRunning() {
+        return motorRunning;
+    }
+
+    public boolean isDoorOpen() {
+        return doorOpen;
+    }
+
+    public boolean hasWaitingRequests() {
+        return hasWaitingRequests;
+    }
 }
