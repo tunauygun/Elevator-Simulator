@@ -6,51 +6,14 @@ import java.time.LocalTime;
  * The ElevatorRequest class acts as the data structure that encapsulates the
  * time, floor, and button data shared between Floor and Elevator threads.
  *
- * @version 1.0, February 2, 2024
+ * @version 2.0, February 24, 2024
  */
 public class ElevatorRequest {
-
 
     private LocalTime time;
     private String floorButton;
     private int floor, carButton;
     private RequestStatus status;
-
-    public RequestStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(RequestStatus status) {
-        this.status = status;
-    }
-
-    public LocalTime getTime() {
-        return time;
-    }
-
-    public int getFloor() {
-        return floor;
-    }
-
-    public int getCarButton() {
-        return carButton;
-    }
-
-    public int getCurrentTargetFloor() {
-        if (this.status == RequestStatus.PENDING) {
-            return this.floor;
-        }
-        return this.carButton;
-    }
-
-    public Direction getDirection() {
-        if (carButton == floor) {
-            return null;
-        } else if (carButton - floor > 0) {
-            return Direction.UP;
-        }
-        return Direction.DOWN;
-    }
 
     /**
      * Constructs an instance of the elevator event
@@ -67,6 +30,72 @@ public class ElevatorRequest {
         this.floorButton = floorButton;
         this.carButton = carButton;
         this.status = RequestStatus.PENDING;
+    }
+
+    /**
+     * Returns the status of the elevator request
+     * @return status of the elevator request
+     */
+    public RequestStatus getStatus() {
+        return status;
+    }
+
+    /**
+     * Sets the elevator request status to the given status
+     * @param status New status of the request
+     */
+    public void setStatus(RequestStatus status) {
+        this.status = status;
+    }
+
+    /**
+     * The timestamp of the request
+     * @return Request timestamp
+     */
+    public LocalTime getTime() {
+        return time;
+    }
+
+    /**
+     * Returns the floor on which the passenger is making a request
+     * @return The floor on which the passenger is making a request
+     */
+    public int getFloor() {
+        return floor;
+    }
+
+    /**
+     * The floor number that the passenger needs to travel.
+     * @return The requested target floor number
+     */
+    public int getCarButton() {
+        return carButton;
+    }
+
+    /**
+     * Indicates the floor number that the elevator needs to go to address the request at its current state.
+     * If the passenger is not picked up, returns the "floor"; if the passanger is already picked up, returns
+     * the "carButton"
+     * @return The curent target floor for processing the request
+     */
+    public int getCurrentTargetFloor() {
+        if (this.status == RequestStatus.PENDING) {
+            return this.floor;
+        }
+        return this.carButton;
+    }
+
+    /**
+     * Returns the direction based on the floor where the request is made and the destination floor
+     * @return The direction of travel
+     */
+    public Direction getDirection() {
+        if (carButton == floor) {
+            return null;
+        } else if (carButton - floor > 0) {
+            return Direction.UP;
+        }
+        return Direction.DOWN;
     }
 
     /**

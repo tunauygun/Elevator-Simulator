@@ -4,12 +4,16 @@ import java.util.Random;
 /**
  * Elevator.java
  * <p>
- * The Elevator models an elevator in a building. For iterable 1, the elevator class reads the elevator
- * events sent by the Floor from the scheduler and sends them back.
+ * The Elevator models an elevator in a building.The elevator class reads the elevator
+ * requests sent by the Floor from the scheduler and processes them to complete all requests.
  *
- * @version 2.0, February 22, 2024
+ * @version 2.0, February 24, 2024
  */
 public class Elevator implements Runnable {
+
+    private enum ElevatorState {
+        IDLE, CLOSE_DOOR, MOVING, OPEN_DOOR
+    }
 
     private final int BASE_MOVE_TIME = 5762;
     private final int INCREMENTAL_MOVE_TIME = 2240;
@@ -19,22 +23,8 @@ public class Elevator implements Runnable {
 
     //Queue for elevator events
     public ArrayList<ElevatorRequest> downRequests = new ArrayList<>();
-
     public ArrayList<ElevatorRequest> upRequests = new ArrayList<>();
-
     public boolean hasWaitingRequests;
-
-    public void addNewRequest(ElevatorRequest request) {
-        switch (request.getDirection()) {
-            case UP -> upRequests.add(request);
-            case DOWN -> downRequests.add(request);
-        }
-        hasWaitingRequests = true;
-    }
-
-    private enum ElevatorState {
-        IDLE, CLOSE_DOOR, MOVING, OPEN_DOOR
-    }
 
     private ElevatorState currentState;
     private Direction direction;
@@ -43,10 +33,8 @@ public class Elevator implements Runnable {
     private boolean motorRunning;
     private boolean doorOpen;
 
-
     /**
      * Constructs an instance of the Elevator class
-     *
      * @param scheduler The scheduler that synchronizes the elevator with the floor
      */
     public Elevator(Scheduler scheduler, int numberOfFloors) {
@@ -59,30 +47,50 @@ public class Elevator implements Runnable {
         this.motorRunning = false;
         this.doorOpen = true;
 
+        // Initialize all elevator laps at off state
         for (int i = 0; i < numberOfFloors; i++) {
             elevatorLamps.add(false);
         }
     }
 
-    @Override
-    public void run() {
-        // Reads the elevator events sent by the floor and sends them back
-        while (true) {
-            processState();
+    /**
+     * Add the new assigned elevator request to the elevator's request queue
+     * @param request The new elevator request
+     */
+    public void addNewRequest(ElevatorRequest request) {
+        switch (request.getDirection()) {
+            case UP -> upRequests.add(request);
+            case DOWN -> downRequests.add(request);
         }
+        hasWaitingRequests = true;
     }
 
+    /**
+     * Returns the next floor number based on the direction of the elevator
+     * @return The next floor number
+     */
+    private int getNextFloorNumber() {
+        if (this.direction == Direction.UP) {
+            return this.floorNumber + 1;
+        }
+        return this.floorNumber - 1;
+    }
+
+    /**
+     * Processes the states of the elevator
+     */
     public void processState() {
         switch (currentState) {
             case IDLE:
                 System.out.println("\nELEVATOR STATE: IDLE");
                 System.out.println("Waiting for a request at floor " + floorNumber + "!");
 
+                // Wait for a new elevator request and receive it from scheduler
                 this.primaryRequest = scheduler.receiveFirstPrimaryRequest();
 
-                if (this.primaryRequest.getCurrentTargetFloor() == this.floorNumber) { // We are already at passenger's floor
+                // Determine the direction that the elevator needs to move
+                if (this.primaryRequest.getCurrentTargetFloor() == this.floorNumber) {
                     this.direction = Direction.STOPPED;
-                    //this.primaryRequest.status = RequestStatus.PASSENGER_PICKED_UP;
                 } else if (this.primaryRequest.getCurrentTargetFloor() - this.floorNumber > 0) {
                     this.direction = Direction.UP;
                 } else {
@@ -91,20 +99,25 @@ public class Elevator implements Runnable {
 
                 System.out.println("New Primary Request: " + this.primaryRequest + " Direction: " + direction);
 
+                // Go the closed state to close the door before starting moving
                 this.currentState = ElevatorState.CLOSE_DOOR;
                 break;
 
             case CLOSE_DOOR:
                 System.out.println("ELEVATOR STATE: CLOSE_DOOR");
 
+                // Check if we picked up the passenger for the primary request
                 if (this.primaryRequest.getCurrentTargetFloor() == this.floorNumber && this.primaryRequest.getStatus() == RequestStatus.PENDING) {
                     this.primaryRequest.setStatus(RequestStatus.PASSENGER_PICKED_UP);
                     this.direction = this.primaryRequest.getDirection();
                     this.elevatorLamps.set(this.primaryRequest.getCarButton(), true);
                     System.out.println("Picked up passenger for primary request");
                 }
+
+                // Process any request at the current floor by picking up passengers
                 scheduler.processRequestsAtCurrentFloor(floorNumber, direction);
 
+                // Close the door
                 System.out.println("Closing Door");
                 try {
                     Thread.sleep(LOADING_TIME / 2);
@@ -112,6 +125,7 @@ public class Elevator implements Runnable {
                 }
                 System.out.println("Door Closed");
 
+                // Update the door and lamp flags
                 this.doorOpen = false;
                 scheduler.setFloorDirectionLamp(floorNumber, direction, false);
                 currentState = ElevatorState.MOVING;
@@ -127,9 +141,11 @@ public class Elevator implements Runnable {
                 } catch (InterruptedException e) {
                 }
 
+                // Keep traveling floors until we reach the primary target floor or a floor with an elevator request
                 int nextFloorNumber;
                 boolean isStopRequiredAtNextFloor;
                 do {
+                    // Check if a stop is required at the next stop
                     nextFloorNumber = getNextFloorNumber();
                     isStopRequiredAtNextFloor = scheduler.isStopRequiredForFloor(nextFloorNumber, direction);
 
@@ -138,6 +154,7 @@ public class Elevator implements Runnable {
                     } catch (InterruptedException e) {
                     }
 
+                    // Update the floor number based on direction
                     if (this.direction == Direction.UP) {
                         this.floorNumber += 1;
                     } else {
@@ -160,17 +177,19 @@ public class Elevator implements Runnable {
             case OPEN_DOOR:
                 System.out.println("ELEVATOR STATE: OPEN_DOOR");
 
+                // Wait for opening the door and loading
                 try {
                     Thread.sleep(LOADING_TIME / 2);
                 } catch (InterruptedException e) {
                 }
-
                 this.doorOpen = true;
 
                 System.out.println("Opened door at floor " + floorNumber);
 
+                // Process elevator requests that are completed by visiting current floor
                 scheduler.processCompletedRequests(floorNumber, direction);
 
+                // Check if the primary request is completed
                 if (this.primaryRequest.getCurrentTargetFloor() == floorNumber && this.primaryRequest.getStatus() == RequestStatus.PASSENGER_PICKED_UP) {
                     System.out.println("Completed primary request: " + primaryRequest);
                     this.elevatorLamps.set(this.primaryRequest.getCarButton(), false);
@@ -185,15 +204,19 @@ public class Elevator implements Runnable {
                         System.out.println("New primary request: " + primaryRequest);
                         this.currentState = ElevatorState.CLOSE_DOOR;
 
+                        // Update the travel direction
                         if (this.primaryRequest.getCurrentTargetFloor() - this.floorNumber > 0) {
                             this.direction = Direction.UP;
                         } else {
                             this.direction = Direction.DOWN;
                         }
+
+                        // Update lamp status
                         scheduler.setFloorLamp(floorNumber, direction, false);
                         scheduler.setFloorDirectionLamp(floorNumber, direction, true);
                     }
                 } else {
+                    // We didn't complete the primary request. Update lamps and sent the state to close the door
                     scheduler.setFloorLamp(floorNumber, direction, false);
                     scheduler.setFloorDirectionLamp(floorNumber, direction, true);
                     this.currentState = ElevatorState.CLOSE_DOOR;
@@ -203,30 +226,53 @@ public class Elevator implements Runnable {
         }
     }
 
-    private int getNextFloorNumber() {
-        if (this.direction == Direction.UP) {
-            return this.floorNumber + 1;
-        }
-        return this.floorNumber - 1;
-    }
-
+    /**
+     * Returns the current direction of travel for the elevator
+     * @return direction of travel for the elevator
+     */
     public Direction getDirection() {
         return direction;
     }
 
+    /**
+     * Returns the current location of the elevator
+     * @return The floor where the elevator is currently located
+     */
     public int getFloorNumber() {
         return floorNumber;
     }
 
+    /**
+     * Returns true if the elevator is running, false otherwise.
+     * @return True if the elevator is running, false otherwise.
+     */
     public boolean isMotorRunning() {
         return motorRunning;
     }
 
+    /**
+     * Returns the state of the door.
+     * @return True if the door is open, false otherwise.
+     */
     public boolean isDoorOpen() {
         return doorOpen;
     }
 
+    /**
+     * Returns the state of the request queue.
+     * @return True if there is a request in the queue, false otherwise.
+     */
     public boolean hasWaitingRequests() {
         return hasWaitingRequests;
+    }
+
+    /**
+     * Keeps running the elevator by processing the states
+     */
+    @Override
+    public void run() {
+        while (true) {
+            processState();
+        }
     }
 }

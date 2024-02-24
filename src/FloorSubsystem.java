@@ -6,41 +6,47 @@ import java.util.Random;
 import java.util.Scanner;
 
 /**
- * Floor.java
+ * FloorSubsystem.java
  * <p>
- * The Floor models a floor in a building. For iterable 1, the floor class reads the elevator
- * events from the input file, sends/receives them to/from the scheduler.
+ * The FloorSystem coordinates between individual floors and the elevator in a building. The floor subsystem
+ * reads the elevator requests from the input file, forwards lamp commands scheduler to floors, sends the
+ * elevator request from individual floors to the scheduler.
  *
- * @version 2.0, February 22, 2024
+ * @version 2.0, February 24, 2024
  */
 public class FloorSubsystem implements Runnable {
     private Scheduler scheduler;
-    private Random random = new Random();
     private int numberOfFloors;
 
-    // Buffer that hold the events to be read by floor
+    // List of all floors managed by the floor subsystem
     private ArrayList<Floor> floors = new ArrayList<>();
 
-    // True if there is at least one event to read
-    private boolean eventAvailableForFloor = false;
-
     /**
-     * Constructs an instance of the Floor class
-     *
-     * @param scheduler     The scheduler that synchronizes the floor with the elevator
+     * Constructs an instance of the FloorSubsystem class
+     * @param scheduler     The scheduler that synchronizes the floor subsystem with the elevators
      * @param inputFileName The name of the input file that contains the elevator event data
+     * @param numberOfFloors Total number of floors in the building
      */
     public FloorSubsystem(Scheduler scheduler, String inputFileName, int numberOfFloors) {
         this.scheduler = scheduler;
         this.numberOfFloors = numberOfFloors;
+
+        // Instantiates all floors in the building
         for (int i = 0; i < numberOfFloors; i++) {
             floors.add(new Floor(i + 1, numberOfFloors));
         }
+
+        // Adds the elevator requests from the file to their corresponding floor
         for (ElevatorRequest e : readInputFile(inputFileName)) {
             floors.get(e.getFloor() - 1).addRequest(e);
         }
     }
 
+    /**
+     * Reads an input file containing the elevator requests and returns the requests as a list
+     * @param fileName The filename for the input file
+     * @return List of elevator requests
+     */
     private ArrayList<ElevatorRequest> readInputFile(String fileName) {
         File dataFile = new File(fileName);
         ArrayList<ElevatorRequest> events = new ArrayList<>();
@@ -66,6 +72,10 @@ public class FloorSubsystem implements Runnable {
         return events;
     }
 
+    /**
+     * Keeps checking the floors for new elevator request and sends any request
+     * received at a floor to the scheduler to be assigned to an elevator
+     */
     @Override
     public void run() {
         while (true) {
@@ -78,10 +88,22 @@ public class FloorSubsystem implements Runnable {
         }
     }
 
+    /**
+     * Sets the direction lamp at the given floor for the given direction to the given state
+     * @param floorNumber The floor number where the lamp is located
+     * @param direction The direction of the lamp
+     * @param state The target state of the lamp. (on/off)
+     */
     public void setDirectionLamp(int floorNumber, Direction direction, boolean state) {
         this.floors.get(floorNumber - 1).setDirectionLamp(direction, state);
     }
 
+    /**
+     * Sets the floor lamp at the given floor for the given direction to the given state
+     * @param floorNumber The floor number where the lamp is located
+     * @param direction The direction of the lamp
+     * @param state The target state of the lamp. (on/off)
+     */
     public void setFloorLamp(int floorNumber, Direction direction, boolean state) {
         this.floors.get(floorNumber - 1).setFloorLamp(direction, state);
     }
