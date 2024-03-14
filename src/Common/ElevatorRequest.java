@@ -1,14 +1,17 @@
+package Common;
+
+import java.io.*;
 import java.time.LocalTime;
 
 /**
- * ElevatorRequest.java
+ * Common.ElevatorRequest.java
  * <p>
- * The ElevatorRequest class acts as the data structure that encapsulates the
- * time, floor, and button data shared between Floor and Elevator threads.
+ * The Common.ElevatorRequest class acts as the data structure that encapsulates the
+ * time, floor, and button data shared between Floor.Floor and Elevator.Elevator threads.
  *
  * @version 2.0, February 24, 2024
  */
-public class ElevatorRequest {
+public class ElevatorRequest implements Serializable {
 
     private LocalTime time;
     private String floorButton;
@@ -105,6 +108,29 @@ public class ElevatorRequest {
      */
     @Override
     public String toString() {
-        return String.format("|Floor: %s, Direction: %s, CarButton: %s|", floor, floorButton, carButton);
+        return String.format("|Floor.Floor: %s, Common.Direction: %s, CarButton: %s|", floor, floorButton, carButton);
+    }
+
+    public static byte[] serializeRequest(ElevatorRequest request) {
+        byte[] requestBytes = null;
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream(); ObjectOutputStream oos = new ObjectOutputStream(bos)) {
+            oos.writeObject(request);
+            requestBytes = bos.toByteArray();
+        } catch (IOException e) {
+            System.err.println(e);
+            System.exit(1);
+        }
+        return requestBytes;
+    }
+
+    public static ElevatorRequest deserializeRequest(byte[] requestBytes) {
+        ElevatorRequest deserializedRequest = null;
+        try (ByteArrayInputStream bis = new ByteArrayInputStream(requestBytes); ObjectInputStream ois = new ObjectInputStream(bis)) {
+            deserializedRequest = (ElevatorRequest) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println(e);
+            System.exit(1);
+        }
+        return deserializedRequest;
     }
 }

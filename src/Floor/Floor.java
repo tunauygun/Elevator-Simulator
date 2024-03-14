@@ -1,12 +1,17 @@
+package Floor;
+
+import Common.Direction;
+import Common.ElevatorRequest;
+
 import java.time.LocalTime;
 import java.util.ArrayList;
 
 /**
- * Floor.java
+ * Floor.Floor.java
  * <p>
- * The Floor models a single floor in a building. The floor handles the floor laps and the direction lamp
+ * The Floor.Floor models a single floor in a building. The floor handles the floor laps and the direction lamp
  * commands from the scheduler. The floor also checks for elevator events in the current floor and notifies the
- * scheduler through Floor Subsystem.
+ * scheduler through Floor.Floor Subsystem.
  *
  * @version 1.0, February 24, 2024
  */
@@ -31,7 +36,7 @@ public class Floor {
 
     /**
      * Creates a new floor at the given floor number
-     * @param floorNumber Floor number of the new floor
+     * @param floorNumber Floor.Floor number of the new floor
      * @param numberOfFloors Total number of floors in the building
      */
     public Floor(int floorNumber, int numberOfFloors) {

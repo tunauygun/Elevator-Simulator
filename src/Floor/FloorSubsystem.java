@@ -1,12 +1,15 @@
+package Floor;
+
+import Common.*;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.Scanner;
 
 /**
- * FloorSubsystem.java
+ * Floor.FloorSubsystem.java
  * <p>
  * The FloorSystem coordinates between individual floors and the elevator in a building. The floor subsystem
  * reads the elevator requests from the input file, forwards lamp commands scheduler to floors, sends the
@@ -15,21 +18,22 @@ import java.util.Scanner;
  * @version 2.0, February 24, 2024
  */
 public class FloorSubsystem implements Runnable {
-    private Scheduler scheduler;
+
+    private UDPSenderReceiver senderReceiver;
+
     private int numberOfFloors;
 
     // List of all floors managed by the floor subsystem
     private ArrayList<Floor> floors = new ArrayList<>();
 
     /**
-     * Constructs an instance of the FloorSubsystem class
-     * @param scheduler     The scheduler that synchronizes the floor subsystem with the elevators
+     * Constructs an instance of the Floor.FloorSubsystem class
      * @param inputFileName The name of the input file that contains the elevator event data
      * @param numberOfFloors Total number of floors in the building
      */
-    public FloorSubsystem(Scheduler scheduler, String inputFileName, int numberOfFloors) {
-        this.scheduler = scheduler;
+    public FloorSubsystem(String inputFileName, int numberOfFloors) {
         this.numberOfFloors = numberOfFloors;
+        this.senderReceiver = new UDPSenderReceiver(0, Constants.SCHEDULER_PORT);
 
         // Instantiates all floors in the building
         for (int i = 0; i < numberOfFloors; i++) {
@@ -60,6 +64,7 @@ public class FloorSubsystem implements Runnable {
                 // Parse the input file line to elevator event
                 String[] data = myReader.nextLine().strip().split(" ");
                 LocalTime time = LocalTime.parse(data[0]);
+                // TODO: SET TIME AS OFFSET
 
                 ElevatorRequest event = new ElevatorRequest(time, Integer.parseInt(data[1]), data[2], Integer.parseInt(data[3]));
 
@@ -82,7 +87,8 @@ public class FloorSubsystem implements Runnable {
             for (Floor f : floors) {
                 ElevatorRequest request = f.checkForRequests();
                 if (request != null) {
-                    scheduler.sendNewRequest(request);
+                    SystemRequest sr = new SystemRequest(SystemRequestType.ADD_NEW_REQUEST, request, 0);
+                    senderReceiver.sendSystemRequest(sr, Constants.SCHEDULER_PORT);
                 }
             }
         }
