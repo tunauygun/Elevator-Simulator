@@ -70,7 +70,7 @@ public class Floor {
         // Check the up requests and update the floor lamp if needed
         for (int i = 0; i < upRequests.size(); i++) {
             if (upRequests.get(i).getTime().isBefore(LocalTime.now())) {
-                this.floorLampUp = true;
+                this.setFloorLamp(Direction.UP, true);
                 return upRequests.remove(i);
             }
         }
@@ -78,7 +78,7 @@ public class Floor {
         // Check the down requests and update the floor lamp if needed
         for (int i = 0; i < downRequests.size(); i++) {
             if (downRequests.get(i).getTime().isBefore(LocalTime.now())) {
-                this.floorLampDown = true;
+                this.setFloorLamp(Direction.DOWN, true);
                 return downRequests.remove(i);
             }
         }
@@ -90,7 +90,7 @@ public class Floor {
      * @param direction The direction for lamp
      * @param state The state of the lamp. (On/Off)
      */
-    public void setDirectionLamp(int elevatorId, Direction direction, boolean state) {
+    public synchronized void setDirectionLamp(int elevatorId, Direction direction, boolean state) {
         if (direction == Direction.UP && !isLastFloor) {
             directionLamps[elevatorId][0] = state;
         } else if (direction == Direction.DOWN && !isFirstFloor) {
@@ -103,7 +103,7 @@ public class Floor {
      * @param direction The direction for lamp
      * @param state The state of the lamp. (On/Off)
      */
-    public void setFloorLamp(Direction direction, boolean state) {
+    public synchronized void setFloorLamp(Direction direction, boolean state) {
         if (direction == Direction.UP && !isLastFloor) {
             floorLampUp = state;
         } else if (direction == Direction.DOWN && !isFirstFloor) {

@@ -149,6 +149,12 @@ public class ElevatorSubsystem {
             return null;
         }
 
+        // If there is only one request left, set hasWaitingRequests
+        // since the last remaining request will be removed by the end of this method
+        if(this.upRequests.size() + this.downRequests.size() == 1){
+            this.hasWaitingRequests = false;
+        }
+
         // Check for partially processed request in UP direction
         for (int i = 0; i < this.upRequests.size(); i++) {
             if (this.upRequests.get(i).getStatus() == RequestStatus.PASSENGER_PICKED_UP) {
