@@ -55,6 +55,9 @@ public class FloorSubsystem implements Runnable {
         File dataFile = new File(fileName);
         ArrayList<ElevatorRequest> events = new ArrayList<>();
 
+        //Get the Current Time
+        LocalTime currentTime = LocalTime.now();
+
         try {
             Scanner myReader = new Scanner(dataFile);
 
@@ -63,8 +66,10 @@ public class FloorSubsystem implements Runnable {
 
                 // Parse the input file line to elevator event
                 String[] data = myReader.nextLine().strip().split(" ");
-                LocalTime time = LocalTime.parse(data[0]);
-                // TODO: SET TIME AS OFFSET
+                LocalTime offset = LocalTime.parse(data[0]);
+
+                //Take the Offset Time found in the file and add it to the current time to get the time of the event
+                LocalTime time = currentTime.plusHours(offset.getHour()).plusMinutes(offset.getMinute()).plusSeconds(offset.getSecond());
 
                 ElevatorRequest event = new ElevatorRequest(time, Integer.parseInt(data[1]), data[2], Integer.parseInt(data[3]));
 
