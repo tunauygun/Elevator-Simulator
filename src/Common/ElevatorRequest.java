@@ -108,7 +108,7 @@ public class ElevatorRequest implements Serializable {
      */
     @Override
     public String toString() {
-        return String.format("|Floor.Floor: %s, Common.Direction: %s, CarButton: %s|", floor, floorButton, carButton);
+        return String.format("|Floor: %s, Direction: %s, CarButton: %s|", floor, floorButton, carButton);
     }
 
     public static byte[] serializeRequest(ElevatorRequest request) {

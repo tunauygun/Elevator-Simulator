@@ -44,9 +44,9 @@ public class UDPSenderReceiver {
         }
 
         // Print the detail of the received datagram.
-        System.out.println("Packet received:");
-        System.out.print("\tString -> ");
-        System.out.println(new String(receivePacket.getData(), 0, receivePacket.getLength()));
+//        System.out.println("Packet received:");
+//        System.out.print("\tString -> ");
+//        System.out.println(new String(receivePacket.getData(), 0, receivePacket.getLength()));
 //        System.out.print("\tByte -> ");
 //        for (int j = 0; j < receivePacket.getLength(); j++) {
 //            System.out.print(receivePacket.getData()[j] + " ");
@@ -72,7 +72,11 @@ public class UDPSenderReceiver {
 
     public void sendSystemRequest(SystemRequest systemRequest, int destinationPort) {
         byte[] msg = SystemRequest.serializeRequest(systemRequest);
-        System.out.println("Sending request: " + systemRequest);
+//        if(systemRequest.getType() != SystemRequestType.ADD_NEW_REQUEST){
+//            LogPrinter.print(systemRequest.getId(), "Sending request: " + systemRequest);
+//        }else{
+//            System.out.println("Sending request: " + systemRequest);
+//        }
         sendResponse(msg, destinationPort);
     }
 
@@ -92,9 +96,9 @@ public class UDPSenderReceiver {
         }
 
         // Print the details of the packet
-        System.out.println("Sending packet:");
-        System.out.print("\tString -> ");
-        System.out.println(new String(sendPacket.getData(), 0, sendPacket.getLength()));
+//        System.out.println("Sending packet:");
+//        System.out.print("\tString -> ");
+//        System.out.println(new String(sendPacket.getData(), 0, sendPacket.getLength()));
 //        System.out.print("\tByte -> ");
 //        for (byte b : msg) {
 //            System.out.print(b + " ");

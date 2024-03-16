@@ -1,5 +1,6 @@
 package Floor;
 
+import Common.Constants;
 import Common.Direction;
 import Common.ElevatorRequest;
 
@@ -24,10 +25,9 @@ public class Floor {
 
     // Variables for the state of floor and direction lamps.
     // True when the lamp is on, false when the lamp is off
-    private boolean directionLampUp;
-    private boolean directionLampDown;
     private boolean floorLampUp;
     private boolean floorLampDown;
+    private boolean[][] directionLamps;
 
     // Flags indicating if the floor is first/last
     private boolean isFirstFloor;
@@ -43,8 +43,7 @@ public class Floor {
         this.floorNumber = floorNumber;
         this.downRequests = new ArrayList<>();
         this.upRequests = new ArrayList<>();
-        this.directionLampUp = false;
-        this.directionLampDown = false;
+        this.directionLamps = new boolean[Constants.NUMBER_OF_ELEVATORS][2];
         this.floorLampUp = false;
         this.floorLampDown = false;
         this.isFirstFloor = floorNumber == 1;
@@ -55,7 +54,7 @@ public class Floor {
      * Adds the request to the floor's request queue
      * @param event The new elevator request
      */
-    public void addRequest(ElevatorRequest event) {
+    public synchronized void addRequest(ElevatorRequest event) {
         switch (event.getDirection()) {
             case UP -> upRequests.add(event);
             case DOWN -> downRequests.add(event);
@@ -91,11 +90,11 @@ public class Floor {
      * @param direction The direction for lamp
      * @param state The state of the lamp. (On/Off)
      */
-    public void setDirectionLamp(Direction direction, boolean state) {
+    public void setDirectionLamp(int elevatorId, Direction direction, boolean state) {
         if (direction == Direction.UP && !isLastFloor) {
-            directionLampUp = state;
+            directionLamps[elevatorId][0] = state;
         } else if (direction == Direction.DOWN && !isFirstFloor) {
-            directionLampDown = state;
+            directionLamps[elevatorId][0] = state;
         }
     }
 

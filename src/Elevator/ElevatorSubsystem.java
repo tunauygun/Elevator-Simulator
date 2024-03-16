@@ -3,6 +3,7 @@ package Elevator;
 import static Common.Constants.*;
 import Common.Direction;
 import Common.ElevatorRequest;
+import Common.LogPrinter;
 import Common.RequestStatus;
 
 import java.util.ArrayList;
@@ -15,7 +16,10 @@ public class ElevatorSubsystem {
     private boolean hasWaitingRequests;
     public ArrayList<Boolean> elevatorLamps = new ArrayList<>();
 
-    public ElevatorSubsystem() {
+    private final int elevatorId;
+
+    public ElevatorSubsystem(int elevatorId) {
+        this.elevatorId = elevatorId;
         this.hasWaitingRequests = false;
 
         // Initialize all elevator laps at off state
@@ -30,8 +34,8 @@ public class ElevatorSubsystem {
      */
     public synchronized void addNewRequest(ElevatorRequest request) {
         switch (request.getDirection()) {
-            case Direction.UP -> upRequests.add(request);
-            case Direction.DOWN -> downRequests.add(request);
+            case UP -> upRequests.add(request);
+            case DOWN -> downRequests.add(request);
         }
         hasWaitingRequests = true;
     }
@@ -46,7 +50,12 @@ public class ElevatorSubsystem {
 
 
     public synchronized void setElevatorLamps(int floorNumber, boolean lampState){
-        this.elevatorLamps.set(floorNumber, lampState);
+        this.elevatorLamps.set(floorNumber - 1, lampState);
+        if(lampState){
+            LogPrinter.print(this.elevatorId, "Elevator " + this.elevatorId + ": Turned on elevator button " + floorNumber);
+        }else {
+            LogPrinter.print(this.elevatorId, "Elevator " + this.elevatorId + ": Turned off elevator button " + floorNumber);
+        }
     }
 
 
@@ -73,8 +82,8 @@ public class ElevatorSubsystem {
 
                 // If the request is completed, remove from the queue and update elevator lamps
                 if (r.getCurrentTargetFloor() == floorNumber && r.getStatus() == RequestStatus.PASSENGER_PICKED_UP) {
-                    System.out.println("Completed Request: " + r);
-                    this.elevatorLamps.set(r.getCarButton(), false);
+                    LogPrinter.print(this.elevatorId, "Elevator " + this.elevatorId + ": Completed Request: " + r);
+                    this.setElevatorLamps(r.getCarButton(), false);
                     iterator.remove();
                 }
             }
@@ -86,8 +95,8 @@ public class ElevatorSubsystem {
 
                 // If the request is completed, remove from the queue and update elevator lamps
                 if (r.getCurrentTargetFloor() == floorNumber && r.getStatus() == RequestStatus.PASSENGER_PICKED_UP) {
-                    System.out.println("Completed Request: " + r);
-                    this.elevatorLamps.set(r.getCarButton(), false);
+                    LogPrinter.print(this.elevatorId, "Elevator " + this.elevatorId + ": Completed Request: " + r);
+                    this.setElevatorLamps(r.getCarButton(), false);
                     iterator.remove();
                 }
             }
@@ -110,21 +119,20 @@ public class ElevatorSubsystem {
             for (ElevatorRequest r : this.upRequests) {
                 if (r.getCurrentTargetFloor() == floorNumber && r.getStatus() == RequestStatus.PENDING) {
                     r.setStatus(RequestStatus.PASSENGER_PICKED_UP);
-                    this.elevatorLamps.set(r.getCarButton() - 1, true);
-                    System.out.println("Picked up passenger: " + r);
+                    this.setElevatorLamps(r.getCarButton(), true);
+                    LogPrinter.print(this.elevatorId, "Elevator " + this.elevatorId + ": Picked up passenger: " + r);
                 }
             }
         } else {
             for (ElevatorRequest r : this.downRequests) {
                 if (r.getCurrentTargetFloor() == floorNumber && r.getStatus() == RequestStatus.PENDING) {
                     r.setStatus(RequestStatus.PASSENGER_PICKED_UP);
-                    this.elevatorLamps.set(r.getCarButton() - 1, true);
-                    System.out.println("Picked up passenger: " + r);
+                    this.setElevatorLamps(r.getCarButton(), true);
+                    LogPrinter.print(this.elevatorId, "Elevator " + this.elevatorId + ": Picked up passenger: " + r);
                 }
             }
         }
     }
-
 
 
     /**
@@ -139,7 +147,6 @@ public class ElevatorSubsystem {
         // Check if elevator request queue is empty
         if (!this.hasWaitingRequests) {
             return null;
-            //TODO: WAIT
         }
 
         // Check for partially processed request in UP direction

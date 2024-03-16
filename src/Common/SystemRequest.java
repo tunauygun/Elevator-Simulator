@@ -23,7 +23,7 @@ public class SystemRequest implements Serializable {
         return direction;
     }
 
-    public boolean isState() {
+    public boolean getState() {
         return state;
     }
 
@@ -90,14 +90,33 @@ public class SystemRequest implements Serializable {
 
     @Override
     public String toString() {
-        String str = "|RequestType = " + type + " ";
-        str += "id = " + id + " ";
-        str += "floorNumber = " + floorNumber + " ";
-        str += "direction = " + direction + " ";
-        str += "state = " + state;
-        if(elevatorRequest != null){
+        // ----- Request Types and Attributes to Include -----
+        // REGISTER_ELEVATOR_CONTROLLER            elevatorID
+        // NEW_PRIMARY_REQUEST                     elevatorID
+        // ADD_NEW_REQUEST                         elevatorRequest
+        // IS_STOP_REQUIRED                        floorNumber Direction   elevatorID
+        // PROCESSES_REQUESTS_AT_CURRENT_FLOOR     floorNumber Direction   elevatorID
+        // PROCESS_COMPLETED_REQUESTS              floorNumber Direction   elevatorID
+        // SET_FLOOR_DIRECTION_LAMPS               floorNumber Direction   state   elevatorID
+        // SET_FLOOR_LAMPS                         floorNumber Direction   state   elevatorID
+
+        String str = "| RequestType = " + type + " ";
+        if(type == SystemRequestType.ADD_NEW_REQUEST){
             str += " ElevatorRequest = " + elevatorRequest;
+        }else{
+            str += "id = " + id;
         }
+
+        if(type == SystemRequestType.IS_STOP_REQUIRED || type == SystemRequestType.PROCESSES_REQUESTS_AT_CURRENT_FLOOR || type == SystemRequestType.PROCESS_COMPLETED_REQUESTS || type == SystemRequestType.SET_FLOOR_DIRECTION_LAMPS || type == SystemRequestType.SET_FLOOR_LAMPS){
+            str += "; floorNumber = " + floorNumber + "; ";
+            str += "direction = " + direction;
+        }
+
+        if(type == SystemRequestType.SET_FLOOR_DIRECTION_LAMPS || type == SystemRequestType.SET_FLOOR_LAMPS ){
+            str += "; state = " + state;
+        }
+
+        str += " |";
         return str;
     }
 }

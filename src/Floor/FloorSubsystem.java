@@ -19,7 +19,7 @@ import java.util.Scanner;
  */
 public class FloorSubsystem implements Runnable {
 
-    private UDPSenderReceiver senderReceiver;
+    private UDPSenderReceiver sender;
 
     private int numberOfFloors;
 
@@ -33,7 +33,7 @@ public class FloorSubsystem implements Runnable {
      */
     public FloorSubsystem(String inputFileName, int numberOfFloors) {
         this.numberOfFloors = numberOfFloors;
-        this.senderReceiver = new UDPSenderReceiver(0, Constants.SCHEDULER_PORT);
+        this.sender = new UDPSenderReceiver(0, Constants.SCHEDULER_PORT);
 
         // Instantiates all floors in the building
         for (int i = 0; i < numberOfFloors; i++) {
@@ -78,30 +78,14 @@ public class FloorSubsystem implements Runnable {
     }
 
     /**
-     * Keeps checking the floors for new elevator request and sends any request
-     * received at a floor to the scheduler to be assigned to an elevator
-     */
-    @Override
-    public void run() {
-        while (true) {
-            for (Floor f : floors) {
-                ElevatorRequest request = f.checkForRequests();
-                if (request != null) {
-                    SystemRequest sr = new SystemRequest(SystemRequestType.ADD_NEW_REQUEST, request, 0);
-                    senderReceiver.sendSystemRequest(sr, Constants.SCHEDULER_PORT);
-                }
-            }
-        }
-    }
-
-    /**
      * Sets the direction lamp at the given floor for the given direction to the given state
      * @param floorNumber The floor number where the lamp is located
      * @param direction The direction of the lamp
      * @param state The target state of the lamp. (on/off)
      */
-    public void setDirectionLamp(int floorNumber, Direction direction, boolean state) {
-        this.floors.get(floorNumber - 1).setDirectionLamp(direction, state);
+    public void setDirectionLamp(int elevatorId, int floorNumber, Direction direction, boolean state) {
+        this.floors.get(floorNumber - 1).setDirectionLamp(elevatorId, direction, state);
+        System.out.println("Set floor direction lamp: ElevatorId = " + elevatorId + " Direction = " + direction + " State = " + (state?"ON":"OFF"));
     }
 
     /**
@@ -112,5 +96,27 @@ public class FloorSubsystem implements Runnable {
      */
     public void setFloorLamp(int floorNumber, Direction direction, boolean state) {
         this.floors.get(floorNumber - 1).setFloorLamp(direction, state);
+        System.out.println("Set floor lamp: Direction = " + direction + " State = " + (state?"ON":"OFF"));
+    }
+
+
+    /**
+     * Keeps checking the floors for new elevator request and sends any request
+     * received at a floor to the scheduler to be assigned to an elevator
+     */
+    @Override
+    public void run() {
+        while (true) {
+            for (Floor f : floors) {
+                ElevatorRequest request = f.checkForRequests();
+                if (request != null) {
+                    SystemRequest sr = new SystemRequest(SystemRequestType.ADD_NEW_REQUEST, request, 0);
+                    sender.sendSystemRequest(sr, Constants.SCHEDULER_PORT);
+                    System.out.println("Sending new request to the scheduler: " + request);
+
+                    this.setFloorLamp(request.getFloor(), request.getDirection(), true);
+                }
+            }
+        }
     }
 }

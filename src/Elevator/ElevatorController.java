@@ -27,7 +27,7 @@ public class ElevatorController implements Runnable{
      */
     public synchronized void addNewRequest(ElevatorRequest request) {
         subsystem.addNewRequest(request);
-        System.out.println("New Request Received: " + request);
+        LogPrinter.print(this.elevator.getElevatorId(), "Elevator " + this.elevator.getElevatorId() + ": New Request Received: " + request);
     }
 
 
