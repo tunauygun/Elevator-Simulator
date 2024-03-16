@@ -1,12 +1,15 @@
+package Floor;
+
+import Common.*;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.Scanner;
 
 /**
- * FloorSubsystem.java
+ * Floor.FloorSubsystem.java
  * <p>
  * The FloorSystem coordinates between individual floors and the elevator in a building. The floor subsystem
  * reads the elevator requests from the input file, forwards lamp commands scheduler to floors, sends the
@@ -15,21 +18,22 @@ import java.util.Scanner;
  * @version 2.0, February 24, 2024
  */
 public class FloorSubsystem implements Runnable {
-    private Scheduler scheduler;
+
+    private UDPSenderReceiver sender;
+
     private int numberOfFloors;
 
     // List of all floors managed by the floor subsystem
     private ArrayList<Floor> floors = new ArrayList<>();
 
     /**
-     * Constructs an instance of the FloorSubsystem class
-     * @param scheduler     The scheduler that synchronizes the floor subsystem with the elevators
+     * Constructs an instance of the Floor.FloorSubsystem class
      * @param inputFileName The name of the input file that contains the elevator event data
      * @param numberOfFloors Total number of floors in the building
      */
-    public FloorSubsystem(Scheduler scheduler, String inputFileName, int numberOfFloors) {
-        this.scheduler = scheduler;
+    public FloorSubsystem(String inputFileName, int numberOfFloors) {
         this.numberOfFloors = numberOfFloors;
+        this.sender = new UDPSenderReceiver(0, Constants.SCHEDULER_PORT);
 
         // Instantiates all floors in the building
         for (int i = 0; i < numberOfFloors; i++) {
@@ -79,29 +83,14 @@ public class FloorSubsystem implements Runnable {
     }
 
     /**
-     * Keeps checking the floors for new elevator request and sends any request
-     * received at a floor to the scheduler to be assigned to an elevator
-     */
-    @Override
-    public void run() {
-        while (true) {
-            for (Floor f : floors) {
-                ElevatorRequest request = f.checkForRequests();
-                if (request != null) {
-                    scheduler.sendNewRequest(request);
-                }
-            }
-        }
-    }
-
-    /**
      * Sets the direction lamp at the given floor for the given direction to the given state
      * @param floorNumber The floor number where the lamp is located
      * @param direction The direction of the lamp
      * @param state The target state of the lamp. (on/off)
      */
-    public void setDirectionLamp(int floorNumber, Direction direction, boolean state) {
-        this.floors.get(floorNumber - 1).setDirectionLamp(direction, state);
+    public void setDirectionLamp(int elevatorId, int floorNumber, Direction direction, boolean state) {
+        this.floors.get(floorNumber - 1).setDirectionLamp(elevatorId, direction, state);
+        System.out.println("Set floor direction lamp: ElevatorId = " + elevatorId + " Direction = " + direction + " State = " + (state?"ON":"OFF"));
     }
 
     /**
@@ -112,5 +101,27 @@ public class FloorSubsystem implements Runnable {
      */
     public void setFloorLamp(int floorNumber, Direction direction, boolean state) {
         this.floors.get(floorNumber - 1).setFloorLamp(direction, state);
+        System.out.println("Set floor lamp: Direction = " + direction + " State = " + (state?"ON":"OFF"));
+    }
+
+
+    /**
+     * Keeps checking the floors for new elevator request and sends any request
+     * received at a floor to the scheduler to be assigned to an elevator
+     */
+    @Override
+    public void run() {
+        while (true) {
+            for (Floor f : floors) {
+                ElevatorRequest request = f.checkForRequests();
+                if (request != null) {
+                    SystemRequest sr = new SystemRequest(SystemRequestType.ADD_NEW_REQUEST, request, 0);
+                    sender.sendSystemRequest(sr, Constants.SCHEDULER_PORT);
+                    System.out.println("Sending new request to the scheduler: " + request);
+
+                    this.setFloorLamp(request.getFloor(), request.getDirection(), true);
+                }
+            }
+        }
     }
 }

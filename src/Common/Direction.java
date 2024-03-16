@@ -1,3 +1,5 @@
+package Common;
+
 /**
  * Enum indicating the direction of movement
  */

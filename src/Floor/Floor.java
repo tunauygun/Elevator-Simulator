@@ -1,12 +1,18 @@
+package Floor;
+
+import Common.Constants;
+import Common.Direction;
+import Common.ElevatorRequest;
+
 import java.time.LocalTime;
 import java.util.ArrayList;
 
 /**
- * Floor.java
+ * Floor.Floor.java
  * <p>
- * The Floor models a single floor in a building. The floor handles the floor laps and the direction lamp
+ * The Floor.Floor models a single floor in a building. The floor handles the floor laps and the direction lamp
  * commands from the scheduler. The floor also checks for elevator events in the current floor and notifies the
- * scheduler through Floor Subsystem.
+ * scheduler through Floor.Floor Subsystem.
  *
  * @version 1.0, February 24, 2024
  */
@@ -19,10 +25,9 @@ public class Floor {
 
     // Variables for the state of floor and direction lamps.
     // True when the lamp is on, false when the lamp is off
-    private boolean directionLampUp;
-    private boolean directionLampDown;
     private boolean floorLampUp;
     private boolean floorLampDown;
+    private boolean[][] directionLamps;
 
     // Flags indicating if the floor is first/last
     private boolean isFirstFloor;
@@ -31,15 +36,14 @@ public class Floor {
 
     /**
      * Creates a new floor at the given floor number
-     * @param floorNumber Floor number of the new floor
+     * @param floorNumber Floor.Floor number of the new floor
      * @param numberOfFloors Total number of floors in the building
      */
     public Floor(int floorNumber, int numberOfFloors) {
         this.floorNumber = floorNumber;
         this.downRequests = new ArrayList<>();
         this.upRequests = new ArrayList<>();
-        this.directionLampUp = false;
-        this.directionLampDown = false;
+        this.directionLamps = new boolean[Constants.NUMBER_OF_ELEVATORS][2];
         this.floorLampUp = false;
         this.floorLampDown = false;
         this.isFirstFloor = floorNumber == 1;
@@ -50,7 +54,7 @@ public class Floor {
      * Adds the request to the floor's request queue
      * @param event The new elevator request
      */
-    public void addRequest(ElevatorRequest event) {
+    public synchronized void addRequest(ElevatorRequest event) {
         switch (event.getDirection()) {
             case UP -> upRequests.add(event);
             case DOWN -> downRequests.add(event);
@@ -66,7 +70,7 @@ public class Floor {
         // Check the up requests and update the floor lamp if needed
         for (int i = 0; i < upRequests.size(); i++) {
             if (upRequests.get(i).getTime().isBefore(LocalTime.now())) {
-                this.floorLampUp = true;
+                this.setFloorLamp(Direction.UP, true);
                 return upRequests.remove(i);
             }
         }
@@ -74,7 +78,7 @@ public class Floor {
         // Check the down requests and update the floor lamp if needed
         for (int i = 0; i < downRequests.size(); i++) {
             if (downRequests.get(i).getTime().isBefore(LocalTime.now())) {
-                this.floorLampDown = true;
+                this.setFloorLamp(Direction.DOWN, true);
                 return downRequests.remove(i);
             }
         }
@@ -86,11 +90,11 @@ public class Floor {
      * @param direction The direction for lamp
      * @param state The state of the lamp. (On/Off)
      */
-    public void setDirectionLamp(Direction direction, boolean state) {
+    public synchronized void setDirectionLamp(int elevatorId, Direction direction, boolean state) {
         if (direction == Direction.UP && !isLastFloor) {
-            directionLampUp = state;
+            directionLamps[elevatorId][0] = state;
         } else if (direction == Direction.DOWN && !isFirstFloor) {
-            directionLampDown = state;
+            directionLamps[elevatorId][0] = state;
         }
     }
 
@@ -99,7 +103,7 @@ public class Floor {
      * @param direction The direction for lamp
      * @param state The state of the lamp. (On/Off)
      */
-    public void setFloorLamp(Direction direction, boolean state) {
+    public synchronized void setFloorLamp(Direction direction, boolean state) {
         if (direction == Direction.UP && !isLastFloor) {
             floorLampUp = state;
         } else if (direction == Direction.DOWN && !isFirstFloor) {

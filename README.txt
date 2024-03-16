@@ -12,16 +12,16 @@ Group Members:
     Ethan Houghting, 101237103
 
 Files:
-    Direction.java (The enum representing the direction of travel)
-    Elevator.java
-    ElevatorRequest.java (Encapsulates the data for an elevator request)
-    Floor.java (Represents a single floor in the builing and contains direction and floor lamps)
-    FloorSubsystem.java (Coordinates communication between individual floors and Scheduler)
+    Common.Direction.java (The enum representing the direction of travel)
+    Elevator.Elevator.java
+    Common.ElevatorRequest.java (Encapsulates the data for an elevator request)
+    Floor.Floor.java (Represents a single floor in the builing and contains direction and floor lamps)
+    Floor.FloorSubsystem.java (Coordinates communication between individual floors and Scheduler.Scheduler)
     Main.java
-    RequestStatus.java (The enum representing the direction of travel)
-    Scheduler.java
+    Common.RequestStatus.java (The enum representing the direction of travel)
+    Scheduler.Scheduler.java
 
-Folder: Elevator-Simulator
+Folder: Elevator.Elevator-Simulator
 Inside this folder
     - data.txt which holds all of our test cases
     - UML Class Diagram.pdf
@@ -29,14 +29,14 @@ Inside this folder
     - UML State Diagram.pdf
 
 then go inside the src folder
-    Direction.java
-    Elevator.java
-    ElevatorRequest.java
-    Floor.java
-    FloorSubsystem.java
+    Common.Direction.java
+    Elevator.Elevator.java
+    Common.ElevatorRequest.java
+    Floor.Floor.java
+    Floor.FloorSubsystem.java
     Main.java
-    RequestStatus.java
-    Scheduler.java
+    Common.RequestStatus.java
+    Scheduler.Scheduler.java
 
 To set this up:
 1) Open IntelliJ and open the folder from Iteration 2
