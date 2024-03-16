@@ -216,15 +216,15 @@ public class Elevator implements Runnable {
                         // Update lamp status
                         senderReceiver.sendSystemRequest(new SystemRequest(SET_FLOOR_LAMPS, floorNumber, direction, false, elevatorId));
                         senderReceiver.sendSystemRequest(new SystemRequest(SET_FLOOR_DIRECTION_LAMPS, floorNumber, direction, true, elevatorId));
-                        LogPrinter.print(this.elevatorId, " Set floor lamp: Direction=" + direction + " FloorNumber=" + floorNumber + "state=" + false);
-                        LogPrinter.print(this.elevatorId, " Set floor direction lamp: Direction = " + direction + " FloorNumber = " + floorNumber + " state = " + true);
+                        LogPrinter.print(this.elevatorId, "Set floor lamp: Direction=" + direction + " FloorNumber=" + floorNumber + "state=" + false);
+                        LogPrinter.print(this.elevatorId, "Set floor direction lamp: Direction = " + direction + " FloorNumber = " + floorNumber + " state = " + true);
                     }
                 } else {
                     // We didn't complete the primary request. Update lamps and sent the state to close the door
                     senderReceiver.sendSystemRequest(new SystemRequest(SET_FLOOR_LAMPS, floorNumber, direction, false, elevatorId));
                     senderReceiver.sendSystemRequest(new SystemRequest(SET_FLOOR_DIRECTION_LAMPS, floorNumber, direction, true, elevatorId));
-                    LogPrinter.print(this.elevatorId, " Set floor lamp: Direction=" + direction + " FloorNumber=" + floorNumber + "state=" + false);
-                    LogPrinter.print(this.elevatorId, " Set floor direction lamp: Direction = " + direction + " FloorNumber = " + floorNumber + " state = " + true);
+                    LogPrinter.print(this.elevatorId, "Set floor lamp: Direction=" + direction + " FloorNumber=" + floorNumber + "state=" + false);
+                    LogPrinter.print(this.elevatorId, "Set floor direction lamp: Direction = " + direction + " FloorNumber = " + floorNumber + " state = " + true);
                     this.currentState = ElevatorState.CLOSE_DOOR;
                 }
 
