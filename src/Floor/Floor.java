@@ -110,4 +110,16 @@ public class Floor {
             floorLampDown = state;
         }
     }
+
+    public Collection<Object> getUpRequests() {
+        return Collections.singleton(upRequests);
+    }
+
+    public Collection<Object> getDownRequests() {
+        return Collections.singleton(downRequests);
+    }
+
+    public boolean[][] getDirectionLamps() {
+        return directionLamps;
+    }
 }
