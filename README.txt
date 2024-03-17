@@ -89,5 +89,5 @@ Code:
     Implementing the selection of the best elevator in the system to assign a request: Sanay and Tuna
 ReadMe File: Naveen
 UML Class Diagram : Ethan
-UML Sequence Diagram: Tuna
+UML Sequence Diagram: Sanay
 Test Files: Ugonna
