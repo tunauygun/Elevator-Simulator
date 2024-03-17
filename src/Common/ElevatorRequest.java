@@ -76,10 +76,18 @@ public class ElevatorRequest implements Serializable {
     }
 
     /**
+     * The direction that the passenger intends to travel.
+     * @return The requested target floor button.
+     */
+    public String getFloorButton() {
+        return floorButton;
+    }
+
+    /**
      * Indicates the floor number that the elevator needs to go to address the request at its current state.
-     * If the passenger is not picked up, returns the "floor"; if the passanger is already picked up, returns
+     * If the passenger is not picked up, returns the "floor"; if the passenger is already picked up, returns
      * the "carButton"
-     * @return The curent target floor for processing the request
+     * @return The current target floor for processing the request
      */
     public int getCurrentTargetFloor() {
         if (this.status == RequestStatus.PENDING) {
