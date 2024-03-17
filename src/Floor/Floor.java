@@ -144,4 +144,22 @@ public class Floor {
     public boolean[][] getDirectionLamps() {
         return directionLamps;
     }
+
+    /**
+     * Gets the state of up floor lamp.
+     *
+     * @return The state of the up floor lamp.
+     */
+    public boolean getFloorLampUp() {
+        return floorLampUp;
+    }
+
+    /**
+     * Gets the state of down floor lamp.
+     *
+     * @return The state of the down floor lamp.
+     */
+    public boolean getFloorLampDown() {
+        return floorLampDown;
+    }
 }
