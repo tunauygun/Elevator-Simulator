@@ -2,54 +2,65 @@ package Common;
 
 import java.io.*;
 
+/**
+ * SystemRequest.java
+ * <p>
+ * Represents a `SystemRequest` in our application.
+ * <p>
+ * This class encapsulates data for various system requests related to elevators.
+ *
+ * @version 1.0, March 17, 2024
+ */
 public class SystemRequest implements Serializable {
-
     private int id;
+
     private int floorNumber;
     private Direction direction;
     private boolean state;
     private SystemRequestType type;
     private ElevatorRequest elevatorRequest;
 
-    public int getId() {
-        return id;
-    }
-
-    public int getFloorNumber() {
-        return floorNumber;
-    }
-
-    public Direction getDirection() {
-        return direction;
-    }
-
-    public boolean getState() {
-        return state;
-    }
-
-    public SystemRequestType getType() {
-        return type;
-    }
-
+    /**
+     * Creates a system request with the specified type.
+     *
+     * @param type The type of the system request.
+     */
     public SystemRequest(SystemRequestType type) {
         this.type = type;
     }
 
-    public ElevatorRequest getElevatorRequest() {
-        return elevatorRequest;
+    /**
+     * Creates a system request with the specified type and ID.
+     *
+     * @param type The type of the system request.
+     * @param id   The id of the elevator.
+     */
+    public SystemRequest(SystemRequestType type, int id) {
+        this.type = type;
+        this.id = id;
     }
 
+    /**
+     * Creates a system request with the specified type, elevator request, and ID.
+     *
+     * @param type            The type of the system request.
+     * @param elevatorRequest The associated elevator request.
+     * @param id              The id of the elevator.
+     */
     public SystemRequest(SystemRequestType type, ElevatorRequest elevatorRequest, int id) {
         this.type = type;
         this.elevatorRequest = elevatorRequest;
         this.id = id;
     }
 
-    public SystemRequest(SystemRequestType type, int id) {
-        this.type = type;
-        this.id = id;
-    }
-
+    /**
+     * Creates a system request with the specified type, floor number, direction, and ID.
+     *
+     * @param type        The type of the system request.
+     * @param floorNumber The floor number associated with the request.
+     * @param direction   The direction of the request (e.g., UP, DOWN).
+     * @param id          The id of the elevator.
+     */
     public SystemRequest(SystemRequestType type, int floorNumber, Direction direction, int id) {
         this.type = type;
         this.floorNumber = floorNumber;
@@ -57,6 +68,15 @@ public class SystemRequest implements Serializable {
         this.id = id;
     }
 
+    /**
+     * Creates a system request with the specified type, floor number, direction, state, and ID.
+     *
+     * @param type        The type of the system request.
+     * @param floorNumber The floor number associated with the request.
+     * @param direction   The direction of the request (e.g., UP, DOWN).
+     * @param state       The state value related to the system request.
+     * @param id          The id of the elevator.
+     */
     public SystemRequest(SystemRequestType type, int floorNumber, Direction direction, boolean state, int id) {
         this.type = type;
         this.floorNumber = floorNumber;
@@ -65,6 +85,12 @@ public class SystemRequest implements Serializable {
         this.id = id;
     }
 
+    /**
+     * Serializes a {@link SystemRequest} object into a byte array.
+     *
+     * @param request The {@link SystemRequest} to be serialized.
+     * @return A byte array containing the serialized data.
+     */
     public static byte[] serializeRequest(SystemRequest request) {
         byte[] requestBytes = null;
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream(); ObjectOutputStream oos = new ObjectOutputStream(bos)) {
@@ -77,6 +103,12 @@ public class SystemRequest implements Serializable {
         return requestBytes;
     }
 
+    /**
+     * Deserializes a byte array into a {@link SystemRequest} object.
+     *
+     * @param requestBytes The byte array containing the serialized data.
+     * @return The deserialized {@link SystemRequest} object.
+     */
     public static SystemRequest deserializeRequest(byte[] requestBytes) {
         SystemRequest deserializedRequest = null;
         try (ByteArrayInputStream bis = new ByteArrayInputStream(requestBytes); ObjectInputStream ois = new ObjectInputStream(bis)) {
@@ -88,6 +120,66 @@ public class SystemRequest implements Serializable {
         return deserializedRequest;
     }
 
+    /**
+     * Gets the elevator id associated with the request.
+     *
+     * @return The elevator id.
+     */
+    public int getId() {
+        return id;
+    }
+
+    /**
+     * Gets the floor number related to the request.
+     *
+     * @return The floor number.
+     */
+    public int getFloorNumber() {
+        return floorNumber;
+    }
+
+    /**
+     * Gets the direction of the request (e.g., UP, DOWN).
+     *
+     * @return The direction.
+     */
+    public Direction getDirection() {
+        return direction;
+    }
+
+    /**
+     * Gets the state value related to the system request.
+     *
+     * @return The value of state for the request.
+     */
+    public boolean getState() {
+        return state;
+    }
+
+    /**
+     * Gets the type of the system request.
+     *
+     * @return The request type.
+     */
+    public SystemRequestType getType() {
+        return type;
+    }
+
+
+    /**
+     * Gets the elevator request associated with this system request.
+     *
+     * @return The elevator request.
+     */
+    public ElevatorRequest getElevatorRequest() {
+        return elevatorRequest;
+    }
+
+    /**
+     * Returns a string representation of the SystemRequest.
+     *
+     * @return String representation of the SystemRequest.
+     */
     @Override
     public String toString() {
         // ----- Request Types and Attributes to Include -----
@@ -101,18 +193,18 @@ public class SystemRequest implements Serializable {
         // SET_FLOOR_LAMPS                         floorNumber Direction   state   elevatorID
 
         String str = "| RequestType = " + type + " ";
-        if(type == SystemRequestType.ADD_NEW_REQUEST){
+        if (type == SystemRequestType.ADD_NEW_REQUEST) {
             str += " ElevatorRequest = " + elevatorRequest;
-        }else{
+        } else {
             str += "id = " + id;
         }
 
-        if(type == SystemRequestType.IS_STOP_REQUIRED || type == SystemRequestType.PROCESSES_REQUESTS_AT_CURRENT_FLOOR || type == SystemRequestType.PROCESS_COMPLETED_REQUESTS || type == SystemRequestType.SET_FLOOR_DIRECTION_LAMPS || type == SystemRequestType.SET_FLOOR_LAMPS){
+        if (type == SystemRequestType.IS_STOP_REQUIRED || type == SystemRequestType.PROCESSES_REQUESTS_AT_CURRENT_FLOOR || type == SystemRequestType.PROCESS_COMPLETED_REQUESTS || type == SystemRequestType.SET_FLOOR_DIRECTION_LAMPS || type == SystemRequestType.SET_FLOOR_LAMPS) {
             str += "; floorNumber = " + floorNumber + "; ";
             str += "direction = " + direction;
         }
 
-        if(type == SystemRequestType.SET_FLOOR_DIRECTION_LAMPS || type == SystemRequestType.SET_FLOOR_LAMPS ){
+        if (type == SystemRequestType.SET_FLOOR_DIRECTION_LAMPS || type == SystemRequestType.SET_FLOOR_LAMPS) {
             str += "; state = " + state;
         }
 

@@ -3,12 +3,12 @@ package Elevator;
 import Common.*;
 
 /**
- * Elevator.Elevator.java
+ * Elevator.java
  * <p>
- * The Elevator.Elevator models an elevator in a building.The elevator class reads the elevator
+ * The Elevator models an elevator in a building.The elevator class reads the elevator
  * requests sent by the Floor.Floor from the scheduler and processes them to complete all requests.
  *
- * @version 2.0, February 24, 2024
+ * @version 3.0, March 17, 2024
  */
 public class Elevator implements Runnable {
 
@@ -23,7 +23,10 @@ public class Elevator implements Runnable {
     private UDPSenderReceiver senderReceiver;
 
     /**
-     * Constructs an instance of the Elevator.Elevator class
+     * Constructs a new Elevator instance.
+     *
+     * @param subsystem  The elevator subsystem to which this elevator belongs.
+     * @param elevatorId The unique identifier for this elevator.
      */
     public Elevator(ElevatorSubsystem subsystem, int elevatorId) {
         this.subsystem = subsystem;
@@ -38,7 +41,7 @@ public class Elevator implements Runnable {
     }
 
     /**
-     * Returns the next floor number based on the direction of the elevator
+     * Returns the next floor number based on current floor and the direction of the elevator
      *
      * @return The next floor number
      */
@@ -49,23 +52,46 @@ public class Elevator implements Runnable {
         return this.floorNumber - 1;
     }
 
-    public void setFloorNumberToNextFloor(){
+    /**
+     * Sets the floor number to the next floor based on the current direction.
+     */
+    public void setFloorNumberToNextFloor() {
         this.floorNumber = getNextFloorNumber();
     }
 
+    /**
+     * Gets the current state of the elevator.
+     *
+     * @return The current state.
+     */
     public ElevatorState getCurrentState() {
         return currentState;
     }
 
+    /**
+     * Sets the current state of the elevator and handles the state behavior.
+     *
+     * @param currentState The new state to set.
+     */
     public void setCurrentState(ElevatorState currentState) {
         this.currentState = currentState;
         this.currentState.handleState();
     }
 
+    /**
+     * Sets the door state.
+     *
+     * @param doorOpen Whether the door is open.
+     */
     public void setDoorOpen(boolean doorOpen) {
         this.doorOpen = doorOpen;
     }
 
+    /**
+     * Gets the unique identifier of this elevator.
+     *
+     * @return The elevator ID.
+     */
     public int getElevatorId() {
         return elevatorId;
     }
@@ -89,7 +115,7 @@ public class Elevator implements Runnable {
     }
 
     /**
-     * Returns true if the elevator is running, false otherwise.
+     * Checks if the elevator motor is running.
      *
      * @return True if the elevator is running, false otherwise.
      */
@@ -97,12 +123,17 @@ public class Elevator implements Runnable {
         return motorRunning;
     }
 
+    /**
+     * Sets the motor running state.
+     *
+     * @param motorRunning Whether the motor is running.
+     */
     public void setMotorRunning(boolean motorRunning) {
         this.motorRunning = motorRunning;
     }
 
     /**
-     * Returns the state of the door.
+     * Checks if the elevator door is open.
      *
      * @return True if the door is open, false otherwise.
      */
@@ -110,28 +141,53 @@ public class Elevator implements Runnable {
         return doorOpen;
     }
 
+    /**
+     * Gets the elevator subsystem to which this elevator belongs.
+     *
+     * @return The elevator subsystem.
+     */
     public ElevatorSubsystem getSubsystem() {
         return subsystem;
     }
 
+    /**
+     * Sets the primary request for this elevator.
+     *
+     * @param primaryRequest The primary request.
+     */
     public void setPrimaryRequest(ElevatorRequest primaryRequest) {
         this.primaryRequest = primaryRequest;
     }
 
+    /**
+     * Sets the direction of the elevator.
+     *
+     * @param direction The new direction.
+     */
     public void setDirection(Direction direction) {
         this.direction = direction;
     }
 
+    /**
+     * Gets the primary request associated with this elevator.
+     *
+     * @return The primary request.
+     */
     public ElevatorRequest getPrimaryRequest() {
         return primaryRequest;
     }
 
+    /**
+     * Gets the UDP sender/receiver for communication.
+     *
+     * @return The sender/receiver.
+     */
     public UDPSenderReceiver getSenderReceiver() {
         return senderReceiver;
     }
 
     /**
-     * Keeps running the elevator by processing the states
+     * Runs the elevator thread, handling its state transitions.
      */
     @Override
     public void run() {

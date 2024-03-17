@@ -8,15 +8,13 @@ import static Common.SystemRequestType.*;
 /**
  * Scheduler.Scheduler.java
  * <p>
- * The Scheduler.Scheduler class contains event queues and synchronizes the Elevator.Elevator and Floor.Floor threads
+ * The Scheduler class contains event queues and synchronizes the Elevator and Floor threads
  * by providing synchronized methods for writing and reading to event queues.
  *
- * @version 2.0, February 22, 2024
+ * @version 3.0, March 17, 2024
  */
 public class Scheduler implements Runnable {
 
-    //List of Elevators scheduler has access to
-    //private ArrayList<Elevator> elevators = new ArrayList<>();
     private FloorSubsystem floorSubsystems;
     private int[] elevatorPorts = new int[Constants.NUMBER_OF_ELEVATORS];
 
@@ -24,7 +22,6 @@ public class Scheduler implements Runnable {
     private UDPSenderReceiver senderReceiver2;
 
     private int elevatorTurn = 0;
-
 
     public Scheduler() {
         this.senderReceiver1 = new UDPSenderReceiver(Constants.SCHEDULER_PORT, 0);
@@ -49,29 +46,9 @@ public class Scheduler implements Runnable {
         this.elevatorPorts[elevatorId] = elevatorPort;
     }
 
-//    /**
-//     * Sets the direction lamp at the given floor for the given direction to the given state
-//     *
-//     * @param floorNumber The floor number where the lamp is located
-//     * @param direction   The direction of the lamp
-//     * @param state       The target state of the lamp. (on/off)
-//     */
-//    public synchronized void setFloorDirectionLamp(int floorNumber, Direction direction, boolean state) {
-//        this.floorSubsystems.setDirectionLamp(floorNumber, direction, state);
-//    }
-//
-//    /**
-//     * Sets the floor lamp at the given floor for the given direction to the given state
-//     *
-//     * @param floorNumber The floor number where the lamp is located
-//     * @param direction   The direction of the lamp
-//     * @param state       The target state of the lamp. (on/off)
-//     */
-//    public synchronized void setFloorLamp(int floorNumber, Direction direction, boolean state) {
-//        this.floorSubsystems.setFloorLamp(floorNumber, direction, state);
-//    }
-
-
+    /**
+     * Continuously receives and processes system requests from the elevators and floors.
+     */
     @Override
     public void run() {
         while (true) {
@@ -86,35 +63,42 @@ public class Scheduler implements Runnable {
                 LogPrinter.print(request.getId(), "Received new PROCESS_COMPLETED_REQUESTS request from Elevator " + request.getId());
                 senderReceiver2.sendSystemRequest(request, elevatorPorts[id]);
             } else if (request.getType() == PROCESSES_REQUESTS_AT_CURRENT_FLOOR) {
-                LogPrinter.print(request.getId(),"Received new PROCESSES_REQUESTS_AT_CURRENT_FLOOR request from Elevator " + request.getId());
+                LogPrinter.print(request.getId(), "Received new PROCESSES_REQUESTS_AT_CURRENT_FLOOR request from Elevator " + request.getId());
                 senderReceiver2.sendSystemRequest(request, elevatorPorts[id]);
             } else if (request.getType() == NEW_PRIMARY_REQUEST) {
-                LogPrinter.print(request.getId(),"Elevator " + request.getId() + " is asking for a new primary request");
+                LogPrinter.print(request.getId(), "Elevator " + request.getId() + " is asking for a new primary request");
                 senderReceiver2.sendSystemRequest(request, elevatorPorts[id]);
                 byte[] elevatorRequest = senderReceiver2.receiveResponse();
                 senderReceiver1.sendResponse(elevatorRequest, senderPort);
-                LogPrinter.print(request.getId(),"Sending Elevator " + request.getId() + " its new primary request");
+                LogPrinter.print(request.getId(), "Sending Elevator " + request.getId() + " its new primary request");
             } else if (request.getType() == IS_STOP_REQUIRED) {
-                LogPrinter.print(request.getId(),"Elevator " + request.getId() + " asking if a stop is required at floor " + request.getFloorNumber());
+                LogPrinter.print(request.getId(), "Elevator " + request.getId() + " asking if a stop is required at floor " + request.getFloorNumber());
                 senderReceiver2.sendSystemRequest(request, elevatorPorts[id]);
                 byte[] isRequired = senderReceiver2.receiveResponse();
                 senderReceiver1.sendResponse(isRequired, senderPort);
-                LogPrinter.print(request.getId(),"Replying to Elevator " + request.getId() + "'s IS_STOP_REQUIRED request");
+                LogPrinter.print(request.getId(), "Replying to Elevator " + request.getId() + "'s IS_STOP_REQUIRED request");
             } else if (request.getType() == REGISTER_ELEVATOR_CONTROLLER) {
                 this.addElevator(request.getId(), senderPort);
-                LogPrinter.print(request.getId(),"Registering Elevator " + request.getId() + " at port " + senderPort);
+                LogPrinter.print(request.getId(), "Registering Elevator " + request.getId() + " at port " + senderPort);
             } else if (request.getType() == SET_FLOOR_LAMPS) {
-                LogPrinter.print(request.getId(),"Received SET_FLOOR_LAMPS request. Forwarding it to Floor Controller");
+                LogPrinter.print(request.getId(), "Received SET_FLOOR_LAMPS request. Forwarding it to Floor Controller");
                 senderReceiver2.sendSystemRequest(request, Constants.FLOOR_CONTROLLER_PORT);
             } else if (request.getType() == SET_FLOOR_DIRECTION_LAMPS) {
-                LogPrinter.print(request.getId(),"Received SET_FLOOR_DIRECTION_LAMPS request. Forwarding it to Floor Controller");
+                LogPrinter.print(request.getId(), "Received SET_FLOOR_DIRECTION_LAMPS request. Forwarding it to Floor Controller");
                 senderReceiver2.sendSystemRequest(request, Constants.FLOOR_CONTROLLER_PORT);
             }
         }
     }
 
+    /**
+     * Assigns an elevator request to an available elevator.
+     *
+     * @param elevatorRequest The elevator request to assign.
+     */
     private void assignRequestToElevator(ElevatorRequest elevatorRequest) {
         // TODO: ASSIGN THE TASK TO BEST ELEVATOR
+
+        //
 
         senderReceiver2.sendSystemRequest(new SystemRequest(ADD_NEW_REQUEST, elevatorRequest, 0), elevatorPorts[elevatorTurn]);
         System.out.println("Assigning the request to Elevator " + elevatorTurn);

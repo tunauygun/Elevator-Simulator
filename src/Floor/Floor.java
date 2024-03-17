@@ -10,13 +10,13 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * Floor.Floor.java
+ * Floor.java
  * <p>
  * The Floor.Floor models a single floor in a building. The floor handles the floor laps and the direction lamp
  * commands from the scheduler. The floor also checks for elevator events in the current floor and notifies the
  * scheduler through Floor.Floor Subsystem.
  *
- * @version 1.0, February 24, 2024
+ * @version 2.0, March 17, 2024
  */
 public class Floor {
     private int floorNumber;
@@ -38,7 +38,8 @@ public class Floor {
 
     /**
      * Creates a new floor at the given floor number
-     * @param floorNumber Floor.Floor number of the new floor
+     *
+     * @param floorNumber    Floor.Floor number of the new floor
      * @param numberOfFloors Total number of floors in the building
      */
     public Floor(int floorNumber, int numberOfFloors) {
@@ -54,6 +55,7 @@ public class Floor {
 
     /**
      * Adds the request to the floor's request queue
+     *
      * @param event The new elevator request
      */
     public synchronized void addRequest(ElevatorRequest event) {
@@ -65,6 +67,7 @@ public class Floor {
 
     /**
      * Checks if there are any elevator requests at the floor
+     *
      * @return True if there is at least one elevator requests at the floor, False otherwise.
      */
     public ElevatorRequest checkForRequests() {
@@ -89,8 +92,9 @@ public class Floor {
 
     /**
      * Sets the state of the direction lamp for the given direction
+     *
      * @param direction The direction for lamp
-     * @param state The state of the lamp. (On/Off)
+     * @param state     The state of the lamp. (On/Off)
      */
     public synchronized void setDirectionLamp(int elevatorId, Direction direction, boolean state) {
         if (direction == Direction.UP && !isLastFloor) {
@@ -102,8 +106,9 @@ public class Floor {
 
     /**
      * Sets the state of the floor lamp for the given direction
+     *
      * @param direction The direction for lamp
-     * @param state The state of the lamp. (On/Off)
+     * @param state     The state of the lamp. (On/Off)
      */
     public synchronized void setFloorLamp(Direction direction, boolean state) {
         if (direction == Direction.UP && !isLastFloor) {
@@ -113,14 +118,29 @@ public class Floor {
         }
     }
 
+    /**
+     * Gets the collection of elevator requests going up.
+     *
+     * @return The collection of up requests.
+     */
     public Collection<Object> getUpRequests() {
         return Collections.singleton(upRequests);
     }
 
+    /**
+     * Gets the collection of elevator requests going down.
+     *
+     * @return The collection of down requests.
+     */
     public Collection<Object> getDownRequests() {
         return Collections.singleton(downRequests);
     }
 
+    /**
+     * Gets the 2D array representing the direction lamps (UP/DOWN) for each floor.
+     *
+     * @return The direction lamps array.
+     */
     public boolean[][] getDirectionLamps() {
         return directionLamps;
     }

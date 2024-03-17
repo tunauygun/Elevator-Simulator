@@ -1,6 +1,7 @@
 package Elevator;
 
 import static Common.Constants.*;
+
 import Common.Direction;
 import Common.ElevatorRequest;
 import Common.LogPrinter;
@@ -9,6 +10,13 @@ import Common.RequestStatus;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+/**
+ * ElevatorSubsystem.java
+ * <p>
+ * Represents the elevator subsystem responsible for managing elevator requests and state transitions.
+ *
+ * @version 1.0, March 17, 2024
+ */
 public class ElevatorSubsystem {
     //Queue for elevator events
     private ArrayList<ElevatorRequest> downRequests = new ArrayList<>();
@@ -18,6 +26,11 @@ public class ElevatorSubsystem {
 
     private final int elevatorId;
 
+    /**
+     * Constructs a new ElevatorSubsystem instance.
+     *
+     * @param elevatorId The unique identifier for this elevator subsystem.
+     */
     public ElevatorSubsystem(int elevatorId) {
         this.elevatorId = elevatorId;
         this.hasWaitingRequests = false;
@@ -30,6 +43,7 @@ public class ElevatorSubsystem {
 
     /**
      * Add the new assigned elevator request to the elevator's request queue
+     *
      * @param request The new elevator request
      */
     public synchronized void addNewRequest(ElevatorRequest request) {
@@ -42,36 +56,35 @@ public class ElevatorSubsystem {
 
     /**
      * Returns the state of the request queue.
+     *
      * @return True if there is a request in the queue, false otherwise.
      */
     public synchronized boolean hasWaitingRequests() {
         return hasWaitingRequests;
     }
 
-
-    public synchronized void setElevatorLamps(int floorNumber, boolean lampState){
+    /**
+     * Sets the state of elevator lamps for a specific floor.
+     *
+     * @param floorNumber The floor number.
+     * @param lampState   The state of the lamp (true for on, false for off).
+     */
+    public synchronized void setElevatorLamps(int floorNumber, boolean lampState) {
         this.elevatorLamps.set(floorNumber - 1, lampState);
-        if(lampState){
+        if (lampState) {
             LogPrinter.print(this.elevatorId, "Elevator " + this.elevatorId + ": Turned on elevator button " + floorNumber);
-        }else {
+        } else {
             LogPrinter.print(this.elevatorId, "Elevator " + this.elevatorId + ": Turned off elevator button " + floorNumber);
         }
     }
 
 
-
-
-
-
-
-
-
-
     /**
-     * Check all request in the queue for the given direction. If the request is completed by stoping at the given
+     * Check all request in the queue for the given direction. If the request is completed by stopping at the given
      * floor number, the request is completed and removed form the queue
+     *
      * @param floorNumber The floor number of the elevator stop
-     * @param direction The direction of travel of the elevator
+     * @param direction   The direction of travel of the elevator
      */
     public synchronized void processCompletedRequests(int floorNumber, Direction direction) {
         if (direction == Direction.UP) {
@@ -108,11 +121,13 @@ public class ElevatorSubsystem {
         }
     }
 
+
     /**
      * Process the request at the given floor for the given direction by picking up the
      * passengers/elevator requests and updating the elevator lamps.
+     *
      * @param floorNumber The floor number
-     * @param direction The elevator direction of travel
+     * @param direction   The elevator direction of travel
      */
     public synchronized void processRequestsAtCurrentFloor(int floorNumber, Direction direction) {
         if (direction == Direction.UP) {
@@ -138,8 +153,9 @@ public class ElevatorSubsystem {
     /**
      * Return a new primary request for the elevator from the request queue. This method prioritizes
      * elevator requests that are partially processed (which means that the elevator picked up the passenger
-     * but still didn't stop at their destination floor). If there are no partianlly completed requests, returns
+     * but still didn't stop at their destination floor). If there are no partially completed requests, returns
      * any available request. If the request queue is empty, returns null.
+     *
      * @return A new primary elevator request
      */
     public synchronized ElevatorRequest receiveNewPrimaryRequest() {
@@ -151,7 +167,7 @@ public class ElevatorSubsystem {
 
         // If there is only one request left, set hasWaitingRequests
         // since the last remaining request will be removed by the end of this method
-        if(this.upRequests.size() + this.downRequests.size() == 1){
+        if (this.upRequests.size() + this.downRequests.size() == 1) {
             this.hasWaitingRequests = false;
         }
 
@@ -179,9 +195,11 @@ public class ElevatorSubsystem {
     }
 
 
-    /** Checks of a stop is required at any given floor for the given direction
+    /**
+     * Checks of a stop is required at any given floor for the given direction
+     *
      * @param nextFloorNumber The floor number
-     * @param direction The direction of travel
+     * @param direction       The direction of travel
      * @return True if a stop is required, false otherwise
      */
     public synchronized boolean isStopRequiredForFloor(int nextFloorNumber, Direction direction) {
@@ -203,6 +221,5 @@ public class ElevatorSubsystem {
         }
         return false;
     }
-
 
 }

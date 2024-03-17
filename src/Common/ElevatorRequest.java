@@ -4,12 +4,12 @@ import java.io.*;
 import java.time.LocalTime;
 
 /**
- * Common.ElevatorRequest.java
+ * ElevatorRequest.java
  * <p>
  * The Common.ElevatorRequest class acts as the data structure that encapsulates the
  * time, floor, and button data shared between Floor.Floor and Elevator.Elevator threads.
  *
- * @version 2.0, February 24, 2024
+ * @version 3.0, March 17, 2024
  */
 public class ElevatorRequest implements Serializable {
 
@@ -37,6 +37,7 @@ public class ElevatorRequest implements Serializable {
 
     /**
      * Returns the status of the elevator request
+     *
      * @return status of the elevator request
      */
     public RequestStatus getStatus() {
@@ -45,6 +46,7 @@ public class ElevatorRequest implements Serializable {
 
     /**
      * Sets the elevator request status to the given status
+     *
      * @param status New status of the request
      */
     public void setStatus(RequestStatus status) {
@@ -53,6 +55,7 @@ public class ElevatorRequest implements Serializable {
 
     /**
      * The timestamp of the request
+     *
      * @return Request timestamp
      */
     public LocalTime getTime() {
@@ -61,6 +64,7 @@ public class ElevatorRequest implements Serializable {
 
     /**
      * Returns the floor on which the passenger is making a request
+     *
      * @return The floor on which the passenger is making a request
      */
     public int getFloor() {
@@ -69,6 +73,7 @@ public class ElevatorRequest implements Serializable {
 
     /**
      * The floor number that the passenger needs to travel.
+     *
      * @return The requested target floor number
      */
     public int getCarButton() {
@@ -77,6 +82,7 @@ public class ElevatorRequest implements Serializable {
 
     /**
      * The direction that the passenger intends to travel.
+     *
      * @return The requested target floor button.
      */
     public String getFloorButton() {
@@ -87,6 +93,7 @@ public class ElevatorRequest implements Serializable {
      * Indicates the floor number that the elevator needs to go to address the request at its current state.
      * If the passenger is not picked up, returns the "floor"; if the passenger is already picked up, returns
      * the "carButton"
+     *
      * @return The current target floor for processing the request
      */
     public int getCurrentTargetFloor() {
@@ -98,6 +105,7 @@ public class ElevatorRequest implements Serializable {
 
     /**
      * Returns the direction based on the floor where the request is made and the destination floor
+     *
      * @return The direction of travel
      */
     public Direction getDirection() {
@@ -119,6 +127,12 @@ public class ElevatorRequest implements Serializable {
         return String.format("|Floor: %s, Direction: %s, CarButton: %s|", floor, floorButton, carButton);
     }
 
+    /**
+     * Serializes an {@link ElevatorRequest} object into a byte array.
+     *
+     * @param request The {@link ElevatorRequest} to be serialized.
+     * @return A byte array containing the serialized data.
+     */
     public static byte[] serializeRequest(ElevatorRequest request) {
         byte[] requestBytes = null;
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream(); ObjectOutputStream oos = new ObjectOutputStream(bos)) {
@@ -131,6 +145,12 @@ public class ElevatorRequest implements Serializable {
         return requestBytes;
     }
 
+    /**
+     * Deserializes a byte array into an {@link ElevatorRequest} object.
+     *
+     * @param requestBytes The byte array containing the serialized data.
+     * @return The deserialized {@link ElevatorRequest} object.
+     */
     public static ElevatorRequest deserializeRequest(byte[] requestBytes) {
         ElevatorRequest deserializedRequest = null;
         try (ByteArrayInputStream bis = new ByteArrayInputStream(requestBytes); ObjectInputStream ois = new ObjectInputStream(bis)) {

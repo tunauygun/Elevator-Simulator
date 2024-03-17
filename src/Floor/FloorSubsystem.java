@@ -9,13 +9,13 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
- * Floor.FloorSubsystem.java
+ * FloorSubsystem.java
  * <p>
  * The FloorSystem coordinates between individual floors and the elevator in a building. The floor subsystem
  * reads the elevator requests from the input file, forwards lamp commands scheduler to floors, sends the
  * elevator request from individual floors to the scheduler.
  *
- * @version 2.0, February 24, 2024
+ * @version 3.0, March 17, 2024
  */
 public class FloorSubsystem implements Runnable {
 
@@ -28,7 +28,8 @@ public class FloorSubsystem implements Runnable {
 
     /**
      * Constructs an instance of the Floor.FloorSubsystem class
-     * @param inputFileName The name of the input file that contains the elevator event data
+     *
+     * @param inputFileName  The name of the input file that contains the elevator event data
      * @param numberOfFloors Total number of floors in the building
      */
     public FloorSubsystem(String inputFileName, int numberOfFloors) {
@@ -48,6 +49,7 @@ public class FloorSubsystem implements Runnable {
 
     /**
      * Reads an input file containing the elevator requests and returns the requests as a list
+     *
      * @param fileName The filename for the input file
      * @return List of elevator requests
      */
@@ -84,24 +86,26 @@ public class FloorSubsystem implements Runnable {
 
     /**
      * Sets the direction lamp at the given floor for the given direction to the given state
+     *
      * @param floorNumber The floor number where the lamp is located
-     * @param direction The direction of the lamp
-     * @param state The target state of the lamp. (on/off)
+     * @param direction   The direction of the lamp
+     * @param state       The target state of the lamp. (on/off)
      */
     public void setDirectionLamp(int elevatorId, int floorNumber, Direction direction, boolean state) {
         this.floors.get(floorNumber - 1).setDirectionLamp(elevatorId, direction, state);
-        System.out.println("Set floor direction lamp: ElevatorId = " + elevatorId + " Direction = " + direction + " State = " + (state?"ON":"OFF"));
+        System.out.println("Set floor direction lamp: ElevatorId = " + elevatorId + " Direction = " + direction + " State = " + (state ? "ON" : "OFF"));
     }
 
     /**
      * Sets the floor lamp at the given floor for the given direction to the given state
+     *
      * @param floorNumber The floor number where the lamp is located
-     * @param direction The direction of the lamp
-     * @param state The target state of the lamp. (on/off)
+     * @param direction   The direction of the lamp
+     * @param state       The target state of the lamp. (on/off)
      */
     public void setFloorLamp(int floorNumber, Direction direction, boolean state) {
         this.floors.get(floorNumber - 1).setFloorLamp(direction, state);
-        System.out.println("Set floor lamp: Direction = " + direction + " State = " + (state?"ON":"OFF"));
+        System.out.println("Set floor lamp: Direction = " + direction + " State = " + (state ? "ON" : "OFF"));
     }
 
 

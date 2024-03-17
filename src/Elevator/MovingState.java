@@ -7,14 +7,31 @@ import Common.UDPSenderReceiver;
 import static Common.Constants.*;
 import static Common.SystemRequestType.*;
 
-public class MovingState implements ElevatorState{
+/**
+ * MovingState.java
+ * <p>
+ * Represents the moving state of an elevator.
+ *
+ * @version 1.0, March 17, 2024
+ */
+public class MovingState implements ElevatorState {
 
     private Elevator elevator;
 
+    /**
+     * Constructs a new MovingState for the specified elevator.
+     *
+     * @param elevator The elevator associated with this state.
+     */
     public MovingState(Elevator elevator) {
         this.elevator = elevator;
     }
 
+    /**
+     * Handles the behavior of the elevator in the MOVING state:
+     * - Moves the elevator to the next floor until reaching the primary target floor or a floor with an elevator request.
+     * - Transitions to the OpenDoorState to open the door.
+     */
     @Override
     public void handleState() {
         int elevatorId = elevator.getElevatorId();

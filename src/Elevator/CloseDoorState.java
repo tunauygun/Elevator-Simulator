@@ -8,14 +8,34 @@ import Common.UDPSenderReceiver;
 import static Common.Constants.*;
 import static Common.SystemRequestType.*;
 
-public class CloseDoorState implements ElevatorState{
+/**
+ * CloseDoorState.java
+ * <p>
+ * Represents the state of an elevator when the door is closing.
+ *
+ * @version 1.0, March 17, 2024
+ */
+public class CloseDoorState implements ElevatorState {
 
     private Elevator elevator;
 
+    /**
+     * Constructs a new CloseDoorState for the specified elevator.
+     *
+     * @param elevator The elevator associated with this state.
+     */
     public CloseDoorState(Elevator elevator) {
         this.elevator = elevator;
     }
 
+    /**
+     * Handles the behavior of the elevator in the CLOSE_DOOR state:
+     * - Checks if the passenger for the primary request has been picked up.
+     * - Processes any request at the current floor by picking up passengers.
+     * - Closes the elevator door.
+     * - Sets floor direction lamps.
+     * - Transitions to the MovingState.
+     */
     @Override
     public void handleState() {
         int elevatorId = elevator.getElevatorId();

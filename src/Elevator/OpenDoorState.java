@@ -5,14 +5,33 @@ import Common.*;
 import static Common.Constants.*;
 import static Common.SystemRequestType.*;
 
-public class OpenDoorState implements ElevatorState{
+/**
+ * OpenDoorState.java
+ * <p>
+ * Represents the state of an elevator when the door is opening.
+ *
+ * @version 1.0, March 17, 2024
+ */
+public class OpenDoorState implements ElevatorState {
 
     private Elevator elevator;
 
+    /**
+     * Constructs a new OpenDoorState for the specified elevator.
+     *
+     * @param elevator The elevator associated with this state.
+     */
     public OpenDoorState(Elevator elevator) {
         this.elevator = elevator;
     }
 
+    /**
+     * Handles the behavior of the elevator in the OPEN_DOOR state:
+     * - Opens the elevator door.
+     * - Processes elevator requests that are completed by visiting the current floor.
+     * - Checks if the primary request is completed.
+     * - Transitions to the CloseDoorState or IdleState accordingly.
+     */
     @Override
     public void handleState() {
         int elevatorId = elevator.getElevatorId();

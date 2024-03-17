@@ -1,5 +1,12 @@
 package Common;
 
+/**
+ * SystemRequestType.java
+ * <p>
+ * Represents different types of system requests related to elevator control.
+ *
+ * @version 1.0, March 17, 2024
+ */
 public enum SystemRequestType {
     REGISTER_ELEVATOR_CONTROLLER,
     NEW_PRIMARY_REQUEST,
