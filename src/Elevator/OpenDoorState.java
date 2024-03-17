@@ -1,0 +1,80 @@
+package Elevator;
+
+import Common.*;
+
+import static Common.Constants.*;
+import static Common.SystemRequestType.*;
+
+public class OpenDoorState implements ElevatorState{
+
+    private Elevator elevator;
+
+    public OpenDoorState(Elevator elevator) {
+        this.elevator = elevator;
+    }
+
+    @Override
+    public void handleState() {
+        int elevatorId = elevator.getElevatorId();
+        UDPSenderReceiver senderReceiver = elevator.getSenderReceiver();
+
+        LogPrinter.print(elevatorId, "ELEVATOR " + elevatorId + " STATE: OPEN_DOOR");
+
+        // Wait for opening the door and loading
+        try {
+            Thread.sleep(LOADING_TIME / 2);
+        } catch (InterruptedException e) {
+        }
+        elevator.setDoorOpen(true);
+
+        LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Opened door at floor " + elevator.getFloorNumber());
+
+        // Process elevator requests that are completed by visiting current floor
+        senderReceiver.sendSystemRequest(new SystemRequest(PROCESS_COMPLETED_REQUESTS, elevator.getFloorNumber(), elevator.getDirection(), elevatorId));
+
+        // Check if the primary request is completed
+        if (elevator.getPrimaryRequest().getCurrentTargetFloor() == elevator.getFloorNumber() && elevator.getPrimaryRequest().getStatus() == RequestStatus.PASSENGER_PICKED_UP) {
+            LogPrinter.print(elevatorId, " Completed primary request: " + elevator.getPrimaryRequest());
+            elevator.getSubsystem().setElevatorLamps(elevator.getPrimaryRequest().getCarButton(), false);
+
+            // Get new request from queue
+            senderReceiver.sendSystemRequest(new SystemRequest(NEW_PRIMARY_REQUEST));
+            elevator.setPrimaryRequest(ElevatorRequest.deserializeRequest(senderReceiver.receiveResponse()));
+
+            if (elevator.getPrimaryRequest() == null) {
+                LogPrinter.print(elevatorId, "Elevator " + elevatorId + ": No request in queue, going to IDLE");
+                elevator.setCurrentState(new IdleState(elevator));
+            } else {
+                LogPrinter.print(elevatorId, "Elevator " + elevatorId + ": New primary request: " + elevator.getPrimaryRequest());
+
+                // Update the travel direction
+                if (elevator.getPrimaryRequest().getCurrentTargetFloor() - elevator.getFloorNumber() > 0) {
+                    elevator.setDirection(Direction.UP);
+                } else {
+                    elevator.setDirection(Direction.DOWN);
+                }
+
+                // Update lamp status
+                Direction direction = elevator.getDirection();
+                int floorNumber = elevator.getFloorNumber();
+                senderReceiver.sendSystemRequest(new SystemRequest(SET_FLOOR_LAMPS, floorNumber, direction, false, elevatorId));
+                senderReceiver.sendSystemRequest(new SystemRequest(SET_FLOOR_DIRECTION_LAMPS, floorNumber, direction, true, elevatorId));
+                LogPrinter.print(elevatorId, "Set floor lamp: Direction=" + direction + " FloorNumber=" + floorNumber + "state=" + false);
+                LogPrinter.print(elevatorId, "Set floor direction lamp: Direction = " + direction + " FloorNumber = " + floorNumber + " state = " + true);
+
+                elevator.setCurrentState(new CloseDoorState(elevator));
+            }
+        } else {
+            // We didn't complete the primary request. Update lamps and sent the state to close the door
+            Direction direction = elevator.getDirection();
+            int floorNumber = elevator.getFloorNumber();
+            senderReceiver.sendSystemRequest(new SystemRequest(SET_FLOOR_LAMPS, floorNumber, direction, false, elevatorId));
+            senderReceiver.sendSystemRequest(new SystemRequest(SET_FLOOR_DIRECTION_LAMPS, floorNumber, direction, true, elevatorId));
+            LogPrinter.print(elevatorId, "Set floor lamp: Direction=" + direction + " FloorNumber=" + floorNumber + "state=" + false);
+            LogPrinter.print(elevatorId, "Set floor direction lamp: Direction = " + direction + " FloorNumber = " + floorNumber + " state = " + true);
+
+            elevator.setCurrentState(new CloseDoorState(elevator));
+        }
+    }
+}
+
