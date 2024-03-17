@@ -2,8 +2,6 @@ package Elevator;
 
 import Common.*;
 
-import static Common.SystemRequestType.*;
-
 /**
  * Elevator.Elevator.java
  * <p>
@@ -55,7 +53,7 @@ public class Elevator implements Runnable {
         this.floorNumber = getNextFloorNumber();
     }
 
-    public Elevator.ElevatorState getCurrentState() {
+    public ElevatorState getCurrentState() {
         return currentState;
     }
 
