@@ -1,8 +1,6 @@
 package Elevator;
 
 import Common.Constants;
-import Floor.FloorSubsystem;
-import Scheduler.Scheduler;
 
 public class Main {
     public static void main(String[] args) {

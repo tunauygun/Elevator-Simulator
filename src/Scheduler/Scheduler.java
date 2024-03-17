@@ -1,11 +1,7 @@
 package Scheduler;
 
 import Common.*;
-import Elevator.Elevator;
 import Floor.FloorSubsystem;
-
-import java.util.ArrayList;
-import java.util.Iterator;
 
 import static Common.SystemRequestType.*;
 

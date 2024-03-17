@@ -1,7 +1,5 @@
 package Common;
 
-import java.util.Arrays;
-
 public class LogPrinter {
 
     private static final String RESET = "\u001B[0m";

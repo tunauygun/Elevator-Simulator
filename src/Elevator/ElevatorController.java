@@ -2,8 +2,6 @@ package Elevator;
 
 import Common.*;
 
-import java.util.Iterator;
-
 import static Common.SystemRequestType.*;
 
 public class ElevatorController implements Runnable{
