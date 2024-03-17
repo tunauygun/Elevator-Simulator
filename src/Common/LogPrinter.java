@@ -19,7 +19,7 @@ public class LogPrinter {
             {80, 80, 220}      // Blue
     };
 
-    private static String getColorString(int[] rgbColor){
+    public static String getColorString(int[] rgbColor){
         int r = rgbColor[0];
         int g = rgbColor[1];
         int b = rgbColor[2];
