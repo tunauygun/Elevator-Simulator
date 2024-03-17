@@ -3,6 +3,11 @@ package Scheduler;
 import Common.*;
 import Floor.FloorSubsystem;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import static Common.SystemRequestType.*;
 
 /**
@@ -20,8 +25,6 @@ public class Scheduler implements Runnable {
 
     private UDPSenderReceiver senderReceiver1;
     private UDPSenderReceiver senderReceiver2;
-
-    private int elevatorTurn = 0;
 
     public Scheduler() {
         this.senderReceiver1 = new UDPSenderReceiver(Constants.SCHEDULER_PORT, 0);
@@ -58,7 +61,9 @@ public class Scheduler implements Runnable {
             int senderPort = senderReceiver1.getLastSenderPort();
             if (request.getType() == ADD_NEW_REQUEST) {
                 System.out.println("Received new request from floor " + request.getFloorNumber());
-                assignRequestToElevator(request.getElevatorRequest());
+                int bestElevatorId = selectBestElevatorNumber(request.getElevatorRequest());
+                senderReceiver2.sendSystemRequest(new SystemRequest(ADD_NEW_REQUEST, request.getElevatorRequest(), 0), elevatorPorts[bestElevatorId]);
+                System.out.println("Assigning the request to Elevator " + bestElevatorId);
             } else if (request.getType() == PROCESS_COMPLETED_REQUESTS) {
                 LogPrinter.print(request.getId(), "Received new PROCESS_COMPLETED_REQUESTS request from Elevator " + request.getId());
                 senderReceiver2.sendSystemRequest(request, elevatorPorts[id]);
@@ -91,18 +96,56 @@ public class Scheduler implements Runnable {
     }
 
     /**
-     * Assigns an elevator request to an available elevator.
+     * Gets the id of the elevator that is better suited to serve a given request
      *
-     * @param elevatorRequest The elevator request to assign.
+     * @param elevatorRequest The elevator request to be assigned
+     * @return The id of the best elevator to serve the request
      */
-    private void assignRequestToElevator(ElevatorRequest elevatorRequest) {
-        // TODO: ASSIGN THE TASK TO BEST ELEVATOR
+    private int selectBestElevatorNumber(ElevatorRequest elevatorRequest) {
+        // Get the status of all elevators
+        ArrayList<ElevatorStatus> elevatorStatuses = new ArrayList<>();
+        for (int elevatorPort : elevatorPorts) {
+            senderReceiver2.sendSystemRequest(new SystemRequest(STATUS_REQUEST), elevatorPort);
+            ElevatorStatus elevatorStatus = ElevatorStatus.deserializeStatus(senderReceiver2.receiveResponse());
+            elevatorStatuses.add(elevatorStatus);
+        }
 
-        //
+        // Check if there is an elevator that is already planned to stop at the floor
+        for (ElevatorStatus e : elevatorStatuses) {
+            if (e.getStopRequestFloorsInDirection(elevatorRequest.getDirection()).contains(elevatorRequest.getFloor())) {
+                return e.getElevatorId();
+            }
+        }
 
-        senderReceiver2.sendSystemRequest(new SystemRequest(ADD_NEW_REQUEST, elevatorRequest, 0), elevatorPorts[elevatorTurn]);
-        System.out.println("Assigning the request to Elevator " + elevatorTurn);
-        this.elevatorTurn = (elevatorTurn + 1) % elevatorPorts.length;
+        // Get a list of all idle elevators
+        ArrayList<Integer> idleElevators = new ArrayList<>();
+        for (int i = 0; i < elevatorStatuses.size(); i++) {
+            if (elevatorStatuses.get(i).getDirection() == Direction.STOPPED) {
+                idleElevators.add(i);
+            }
+        }
 
+        // Get the list of candidate elevators for the request
+        List<Integer> candidateElevators;
+        if (!idleElevators.isEmpty()) {
+            candidateElevators = idleElevators;
+        } else {
+            candidateElevators = IntStream.range(0, elevatorPorts.length).boxed().collect(Collectors.toList());
+        }
+
+        // Find the closest elevator
+        int bestElevatorIndex = -1;
+        int minDistance = Integer.MAX_VALUE;
+        for (int i : candidateElevators) {
+            ElevatorStatus elevator = elevatorStatuses.get(i);
+            int distance = Math.abs(elevator.getFloorNumber() - elevatorRequest.getFloor());
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                bestElevatorIndex = i;
+            }
+        }
+
+        return bestElevatorIndex;
     }
 }

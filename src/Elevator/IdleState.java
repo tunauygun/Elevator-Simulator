@@ -32,6 +32,8 @@ public class IdleState implements ElevatorState {
      */
     @Override
     public void handleState() {
+        elevator.setDirection(Direction.STOPPED);
+
         int elevatorId = elevator.getElevatorId();
         UDPSenderReceiver senderReceiver = elevator.getSenderReceiver();
 

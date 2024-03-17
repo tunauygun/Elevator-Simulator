@@ -2,6 +2,8 @@ package Elevator;
 
 import Common.*;
 
+import java.util.ArrayList;
+
 import static Common.SystemRequestType.*;
 
 /**
@@ -89,6 +91,20 @@ public class ElevatorController implements Runnable {
         return subsystem.isStopRequiredForFloor(nextFloorNumber, direction);
     }
 
+    /**
+     * Gets the elevator status
+     *
+     * @return The elevatorStatus for the elevator
+     */
+    private ElevatorStatus getElevatorStatus() {
+        int elevatorId = elevator.getElevatorId();
+        Direction direction = elevator.getDirection();
+        int floorNumber = elevator.getFloorNumber();
+        ArrayList<Integer> stopRequestFloorsGoingUp = subsystem.getStopRequestFloorsInDirection(Direction.UP);
+        ArrayList<Integer> stopRequestFloorsGoingDown = subsystem.getStopRequestFloorsInDirection(Direction.DOWN);
+
+        return new ElevatorStatus(elevatorId, direction, floorNumber, stopRequestFloorsGoingUp, stopRequestFloorsGoingDown);
+    }
 
     /**
      * Continuously receives and processes system requests from the scheduler.
@@ -111,6 +127,9 @@ public class ElevatorController implements Runnable {
                 byte[] data = new byte[1];
                 data[0] = (byte) (isRequired ? 1 : 0);
                 senderReceiver.sendResponse(data, Constants.SCHEDULER_PORT_2);
+            } else if (request.getType() == STATUS_REQUEST) {
+                ElevatorStatus status = getElevatorStatus();
+                senderReceiver.sendResponse(ElevatorStatus.serializeStatus(status), Constants.SCHEDULER_PORT_2);
             }
 
         }

@@ -42,6 +42,24 @@ public class ElevatorSubsystem {
     }
 
     /**
+     * Gets a list of floor numbers where a request in the given direction is present
+     *
+     * @param direction The direction of travel
+     * @return The floor number list
+     */
+    public synchronized ArrayList<Integer> getStopRequestFloorsInDirection(Direction direction) {
+        ArrayList<Integer> floors = new ArrayList<>();
+
+        ArrayList<ElevatorRequest> requests = direction == Direction.UP ? upRequests : downRequests;
+        for (ElevatorRequest r : requests) {
+            if (r.getStatus() == RequestStatus.PENDING) {
+                floors.add(r.getFloor());
+            }
+        }
+        return floors;
+    }
+
+    /**
      * Add the new assigned elevator request to the elevator's request queue
      *
      * @param request The new elevator request
