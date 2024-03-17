@@ -55,7 +55,7 @@ public class Elevator implements Runnable {
         this.floorNumber = getNextFloorNumber();
     }
 
-    public ElevatorState getCurrentState() {
+    public Elevator.ElevatorState getCurrentState() {
         return currentState;
     }
 
