@@ -59,38 +59,47 @@ public class Scheduler implements Runnable {
             SystemRequest request = senderReceiver1.receiveSystemRequest();
             int id = request.getId();
             int senderPort = senderReceiver1.getLastSenderPort();
-            if (request.getType() == ADD_NEW_REQUEST) {
-                System.out.println("Received new request from floor " + request.getFloorNumber());
-                int bestElevatorId = selectBestElevatorNumber(request.getElevatorRequest());
-                senderReceiver2.sendSystemRequest(new SystemRequest(ADD_NEW_REQUEST, request.getElevatorRequest(), 0), elevatorPorts[bestElevatorId]);
-                System.out.println("Assigning the request to Elevator " + bestElevatorId);
-            } else if (request.getType() == PROCESS_COMPLETED_REQUESTS) {
-                LogPrinter.print(request.getId(), "Received new PROCESS_COMPLETED_REQUESTS request from Elevator " + request.getId());
-                senderReceiver2.sendSystemRequest(request, elevatorPorts[id]);
-            } else if (request.getType() == PROCESSES_REQUESTS_AT_CURRENT_FLOOR) {
-                LogPrinter.print(request.getId(), "Received new PROCESSES_REQUESTS_AT_CURRENT_FLOOR request from Elevator " + request.getId());
-                senderReceiver2.sendSystemRequest(request, elevatorPorts[id]);
-            } else if (request.getType() == NEW_PRIMARY_REQUEST) {
-                LogPrinter.print(request.getId(), "Elevator " + request.getId() + " is asking for a new primary request");
-                senderReceiver2.sendSystemRequest(request, elevatorPorts[id]);
-                byte[] elevatorRequest = senderReceiver2.receiveResponse();
-                senderReceiver1.sendResponse(elevatorRequest, senderPort);
-                LogPrinter.print(request.getId(), "Sending Elevator " + request.getId() + " its new primary request");
-            } else if (request.getType() == IS_STOP_REQUIRED) {
-                LogPrinter.print(request.getId(), "Elevator " + request.getId() + " asking if a stop is required at floor " + request.getFloorNumber());
-                senderReceiver2.sendSystemRequest(request, elevatorPorts[id]);
-                byte[] isRequired = senderReceiver2.receiveResponse();
-                senderReceiver1.sendResponse(isRequired, senderPort);
-                LogPrinter.print(request.getId(), "Replying to Elevator " + request.getId() + "'s IS_STOP_REQUIRED request");
-            } else if (request.getType() == REGISTER_ELEVATOR_CONTROLLER) {
-                this.addElevator(request.getId(), senderPort);
-                LogPrinter.print(request.getId(), "Registering Elevator " + request.getId() + " at port " + senderPort);
-            } else if (request.getType() == SET_FLOOR_LAMPS) {
-                LogPrinter.print(request.getId(), "Received SET_FLOOR_LAMPS request. Forwarding it to Floor Controller");
-                senderReceiver2.sendSystemRequest(request, Constants.FLOOR_CONTROLLER_PORT);
-            } else if (request.getType() == SET_FLOOR_DIRECTION_LAMPS) {
-                LogPrinter.print(request.getId(), "Received SET_FLOOR_DIRECTION_LAMPS request. Forwarding it to Floor Controller");
-                senderReceiver2.sendSystemRequest(request, Constants.FLOOR_CONTROLLER_PORT);
+            switch (request.getType()) {
+                case ADD_NEW_REQUEST -> {
+                    System.out.println("Received new request from floor " + request.getFloorNumber());
+                    int bestElevatorId = selectBestElevatorNumber(request.getElevatorRequest());
+                    senderReceiver2.sendSystemRequest(new SystemRequest(ADD_NEW_REQUEST, request.getElevatorRequest(), 0), elevatorPorts[bestElevatorId]);
+                    System.out.println("Assigning the request to Elevator " + bestElevatorId);
+                }
+                case PROCESS_COMPLETED_REQUESTS -> {
+                    LogPrinter.print(request.getId(), "Received new PROCESS_COMPLETED_REQUESTS request from Elevator " + request.getId());
+                    senderReceiver2.sendSystemRequest(request, elevatorPorts[id]);
+                }
+                case PROCESSES_REQUESTS_AT_CURRENT_FLOOR -> {
+                    LogPrinter.print(request.getId(), "Received new PROCESSES_REQUESTS_AT_CURRENT_FLOOR request from Elevator " + request.getId());
+                    senderReceiver2.sendSystemRequest(request, elevatorPorts[id]);
+                }
+                case NEW_PRIMARY_REQUEST -> {
+                    LogPrinter.print(request.getId(), "Elevator " + request.getId() + " is asking for a new primary request");
+                    senderReceiver2.sendSystemRequest(request, elevatorPorts[id]);
+                    byte[] elevatorRequest = senderReceiver2.receiveResponse();
+                    senderReceiver1.sendResponse(elevatorRequest, senderPort);
+                    LogPrinter.print(request.getId(), "Sending Elevator " + request.getId() + " its new primary request");
+                }
+                case IS_STOP_REQUIRED -> {
+                    LogPrinter.print(request.getId(), "Elevator " + request.getId() + " asking if a stop is required at floor " + request.getFloorNumber());
+                    senderReceiver2.sendSystemRequest(request, elevatorPorts[id]);
+                    byte[] isRequired = senderReceiver2.receiveResponse();
+                    senderReceiver1.sendResponse(isRequired, senderPort);
+                    LogPrinter.print(request.getId(), "Replying to Elevator " + request.getId() + "'s IS_STOP_REQUIRED request");
+                }
+                case REGISTER_ELEVATOR_CONTROLLER -> {
+                    this.addElevator(request.getId(), senderPort);
+                    LogPrinter.print(request.getId(), "Registering Elevator " + request.getId() + " at port " + senderPort);
+                }
+                case SET_FLOOR_LAMPS -> {
+                    LogPrinter.print(request.getId(), "Received SET_FLOOR_LAMPS request. Forwarding it to Floor Controller");
+                    senderReceiver2.sendSystemRequest(request, Constants.FLOOR_CONTROLLER_PORT);
+                }
+                case SET_FLOOR_DIRECTION_LAMPS -> {
+                    LogPrinter.print(request.getId(), "Received SET_FLOOR_DIRECTION_LAMPS request. Forwarding it to Floor Controller");
+                    senderReceiver2.sendSystemRequest(request, Constants.FLOOR_CONTROLLER_PORT);
+                }
             }
         }
     }
