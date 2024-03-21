@@ -13,12 +13,11 @@ public class LogPrinter {
 
     // An array of RGB color values for different colors
     private static final int[][] COLORS = {
-            {235, 50, 50},      // Red
             {60, 230, 60},      // Green
             {0, 255, 255},      // Cyan
-            {255, 128, 0},      // Orange
+            {255, 150, 50},      // Orange
             {255, 255, 0},      // Yellow
-            {255, 128, 128},    // Pink
+            {255, 100, 200},    // Pink
             {255, 0, 255},      // Magenta
             {128, 0, 255},      // Purple
             {90, 165, 235},     // Light blue
