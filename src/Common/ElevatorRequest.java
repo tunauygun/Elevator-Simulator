@@ -18,6 +18,8 @@ public class ElevatorRequest implements Serializable {
     private int floor, carButton;
     private RequestStatus status;
 
+    // TODO: Add timestamps for total time and deadline
+
     /**
      * Constructs an instance of the elevator event
      *

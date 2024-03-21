@@ -44,6 +44,7 @@ public class OpenDoorState implements ElevatorState {
             Thread.sleep(LOADING_TIME / 2);
         } catch (InterruptedException e) {
         }
+        // TODO: Add sleep times to the time variable
         elevator.setDoorOpen(true);
 
         LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Opened door at floor " + elevator.getFloorNumber());

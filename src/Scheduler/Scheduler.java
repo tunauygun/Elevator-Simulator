@@ -100,6 +100,8 @@ public class Scheduler implements Runnable {
                     LogPrinter.print(request.getId(), "Received SET_FLOOR_DIRECTION_LAMPS request. Forwarding it to Floor Controller");
                     senderReceiver2.sendSystemRequest(request, Constants.FLOOR_CONTROLLER_PORT);
                 }
+                // TODO: Add a new case corresponding to elevator shutdown, and remove the elevator from the port list
+                // TODO: Add new case for time check requests from the elevator
             }
         }
     }
@@ -111,6 +113,8 @@ public class Scheduler implements Runnable {
      * @return The id of the best elevator to serve the request
      */
     private int selectBestElevatorNumber(ElevatorRequest elevatorRequest) {
+        // TODO: Make sure to use elevator id instead of list index
+
         // Get the status of all elevators
         ArrayList<ElevatorStatus> elevatorStatuses = new ArrayList<>();
         for (int elevatorPort : elevatorPorts) {

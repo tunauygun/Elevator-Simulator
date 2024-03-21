@@ -17,4 +17,5 @@ public enum SystemRequestType {
     SET_FLOOR_LAMPS,
     ADD_NEW_REQUEST,
     STATUS_REQUEST
+    // TODO: Add new type for elevator shutdown notice
 }
