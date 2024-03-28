@@ -45,6 +45,7 @@ public class IdleState implements ElevatorState {
             senderReceiver.sendSystemRequest(new SystemRequest(NEW_PRIMARY_REQUEST, elevatorId));
             elevator.setPrimaryRequest(ElevatorRequest.deserializeRequest(senderReceiver.receiveResponse()));
             // TODO: Set the deadline time
+
             if (elevator.getPrimaryRequest() == null) {
                 try {
                     Thread.sleep(5000);

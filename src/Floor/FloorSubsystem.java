@@ -57,7 +57,7 @@ public class FloorSubsystem implements Runnable {
         File dataFile = new File(fileName);
         ArrayList<ElevatorRequest> events = new ArrayList<>();
 
-        //Get the Current Time
+        //Get the Current Time//this wont work as we discussed it will take the time of the system to run in total
         LocalTime currentTime = LocalTime.now();
 
         try {
@@ -73,7 +73,7 @@ public class FloorSubsystem implements Runnable {
                 //Take the Offset Time found in the file and add it to the current time to get the time of the event
                 LocalTime time = currentTime.plusHours(offset.getHour()).plusMinutes(offset.getMinute()).plusSeconds(offset.getSecond());
 
-                ElevatorRequest event = new ElevatorRequest(time, Integer.parseInt(data[1]), data[2], Integer.parseInt(data[3]));
+                ElevatorRequest event = new ElevatorRequest(time, Integer.parseInt(data[1]), data[2], Integer.parseInt(data[3]), Integer.parseInt(data[4]));
 
                 events.add(event);
             }

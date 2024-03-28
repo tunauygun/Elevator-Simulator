@@ -58,6 +58,7 @@ public class MovingState implements ElevatorState {
             // TODO: If stop required, update deadline
 
             try {
+                elevator.setTime(INCREMENTAL_MOVE_TIME);
                 Thread.sleep(INCREMENTAL_MOVE_TIME);
             } catch (InterruptedException e) {
             }
@@ -67,7 +68,6 @@ public class MovingState implements ElevatorState {
             LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Moved to next floor: " + elevator.getFloorNumber());
 
             // TODO: Add sleep times to the time variable (m value)
-
         } while (elevator.getPrimaryRequest().getCurrentTargetFloor() != nextFloorNumber && !isStopRequiredAtNextFloor);
 
         try {
@@ -77,8 +77,9 @@ public class MovingState implements ElevatorState {
 
 
         // TODO: Add sleep times to the time variable (b value)
-
+        elevator.setTime(BASE_MOVE_TIME);
         // TODO: Check if there is a  hard fault
+        //now we need to compare the total time here with the elevator.getTime()
         // TODO: Let scheduler know this elevator is not available
         // TODO: If there is a fault, shut down
 

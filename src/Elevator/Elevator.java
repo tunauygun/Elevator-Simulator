@@ -19,7 +19,7 @@ public class Elevator implements Runnable {
     private int floorNumber;
     private boolean motorRunning;
     private boolean doorOpen;
-    private int elevatorId;
+    private int elevatorId, time;
     private UDPSenderReceiver senderReceiver;
 
     /**
@@ -38,6 +38,7 @@ public class Elevator implements Runnable {
         this.doorOpen = true;
         this.senderReceiver = new UDPSenderReceiver(0, Constants.SCHEDULER_PORT);
         this.currentState = new IdleState(this);
+        this.time = 0;
     }
 
     /**
@@ -51,7 +52,12 @@ public class Elevator implements Runnable {
         }
         return this.floorNumber - 1;
     }
-
+    public int getTime() {
+        return time;
+    }
+    public void setTime(int var) {
+        this.time = var + getTime();
+    }
     /**
      * Sets the floor number to the next floor based on the current direction.
      */

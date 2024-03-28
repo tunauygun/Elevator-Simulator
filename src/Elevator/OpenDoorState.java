@@ -45,6 +45,8 @@ public class OpenDoorState implements ElevatorState {
         } catch (InterruptedException e) {
         }
         // TODO: Add sleep times to the time variable
+        elevator.setTime(LOADING_TIME/2);//is this correct or should i add loading_time
+        System.out.println(elevator.getTime());
         elevator.setDoorOpen(true);
 
         LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Opened door at floor " + elevator.getFloorNumber());
