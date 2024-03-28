@@ -41,8 +41,13 @@ public class MovingState implements ElevatorState {
         LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Current floor: " + elevator.getFloorNumber());
 
         elevator.setMotorRunning(true);
+;
+        // Set the expected deadline for the elevator (1.5x the total move time per floor)
+        elevator.synchDeadline();
+        elevator.setDeadline(1.5 * BASE_MOVE_TIME);
 
         try {
+            elevator.setTime(BASE_MOVE_TIME / 2);
             Thread.sleep(BASE_MOVE_TIME / 2);
         } catch (InterruptedException e) {
         }
@@ -55,8 +60,11 @@ public class MovingState implements ElevatorState {
             nextFloorNumber = elevator.getNextFloorNumber();
             senderReceiver.sendSystemRequest(new SystemRequest(IS_STOP_REQUIRED, nextFloorNumber, elevator.getDirection(), elevatorId));
             isStopRequiredAtNextFloor = senderReceiver.receiveResponse()[0] == 1;
-            // TODO: If stop required, update deadline
 
+            //Increase deadline
+            elevator.setDeadline(1.5 * INCREMENTAL_MOVE_TIME);
+
+            //Simulate Elevator Moving, increase time
             try {
                 elevator.setTime(INCREMENTAL_MOVE_TIME);
                 Thread.sleep(INCREMENTAL_MOVE_TIME);
@@ -67,27 +75,25 @@ public class MovingState implements ElevatorState {
             elevator.setFloorNumberToNextFloor();
             LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Moved to next floor: " + elevator.getFloorNumber());
 
-            // TODO: Add sleep times to the time variable (m value)
         } while (elevator.getPrimaryRequest().getCurrentTargetFloor() != nextFloorNumber && !isStopRequiredAtNextFloor);
 
         try {
+            elevator.setTime(BASE_MOVE_TIME / 2);
             Thread.sleep(BASE_MOVE_TIME / 2);
         } catch (InterruptedException e) {
         }
 
-
-        // TODO: Add sleep times to the time variable (b value)
-        elevator.setTime(BASE_MOVE_TIME);
-        // TODO: Check if there is a  hard fault
-        //now we need to compare the total time here with the elevator.getTime()
-        // TODO: Let scheduler know this elevator is not available
-        // TODO: If there is a fault, shut down
-
+        //Check for Hard Fault
+        if (elevator.hasHardFault() || (elevator.getDeadline() > elevator.getTime())) {
+            // TODO: Let scheduler know this elevator is not available
+            // Print Error Message
+            LogPrinter.printError("Error: Elevator " + elevatorId + " FloorTimerFault at floor" + elevator.getFloorNumber());
+            // TODO: If there is a fault, shut down
+        }
 
         LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Stopped at floor " + elevator.getFloorNumber());
         elevator.setMotorRunning(false);
 
-        // TODO: Update the timestamp
         elevator.setCurrentState(new OpenDoorState(elevator));
     }
 }

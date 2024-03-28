@@ -57,7 +57,7 @@ public class FloorSubsystem implements Runnable {
         File dataFile = new File(fileName);
         ArrayList<ElevatorRequest> events = new ArrayList<>();
 
-        //Get the Current Time//this wont work as we discussed it will take the time of the system to run in total
+        //Get the Current Time this won't work as we discussed it will take the time of the system to run in total
         LocalTime currentTime = LocalTime.now();
 
         try {
@@ -73,8 +73,28 @@ public class FloorSubsystem implements Runnable {
                 //Take the Offset Time found in the file and add it to the current time to get the time of the event
                 LocalTime time = currentTime.plusHours(offset.getHour()).plusMinutes(offset.getMinute()).plusSeconds(offset.getSecond());
 
-                ElevatorRequest event = new ElevatorRequest(time, Integer.parseInt(data[1]), data[2], Integer.parseInt(data[3]), Integer.parseInt(data[4]));
+                int faultInt = Integer.parseInt(data[4]);
+                FaultType faultType = FaultType.NO_FAULT;
+                try {
+                    switch (faultInt) {
+                        case 0: //NoFault
+                            faultType = FaultType.NO_FAULT;
+                            break;
+                        case 1: //NoFault
+                            faultType = FaultType.DOOR_FAULT;
+                            break;
+                        case 2: //NoFault
+                            faultType = FaultType.FLOOR_TIMER_FAULT;
+                            break;
+                        default:
+                            throw new NumberFormatException("Error: Unrecognized fault type in input file, should be 0, 1, or 2.");
+                    }
+                } catch (NumberFormatException nfe) {
+                    nfe.printStackTrace();
+                    System.exit(1);
+                }
 
+                ElevatorRequest event = new ElevatorRequest(time, Integer.parseInt(data[1]), data[2], Integer.parseInt(data[3]), faultType);
                 events.add(event);
             }
             myReader.close();

@@ -6,6 +6,7 @@ import Common.Direction;
 import Common.ElevatorRequest;
 import Common.LogPrinter;
 import Common.RequestStatus;
+import Floor.FaultType;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -237,6 +238,22 @@ public class ElevatorSubsystem {
                 return true;
             }
         }
+        return false;
+    }
+
+    public boolean hasFault(FaultType faultType, int floorNumber){
+        for (ElevatorRequest e: upRequests) {
+            if(e.getStatus() == RequestStatus.PASSENGER_PICKED_UP && e.getFault() == faultType && e.getCarButton() == floorNumber){
+                return true;
+            }
+        }
+
+        for (ElevatorRequest e: downRequests) {
+            if(e.getStatus() == RequestStatus.PASSENGER_PICKED_UP && e.getFault() == faultType && e.getCarButton() == floorNumber){
+                return true;
+            }
+        }
+
         return false;
     }
 

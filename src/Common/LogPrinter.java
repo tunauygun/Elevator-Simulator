@@ -15,7 +15,7 @@ public class LogPrinter {
     private static final int[][] COLORS = {
             {60, 230, 60},      // Green
             {0, 255, 255},      // Cyan
-            {255, 150, 50},      // Orange
+            {255, 150, 50},     // Orange
             {255, 255, 0},      // Yellow
             {255, 100, 200},    // Pink
             {255, 0, 255},      // Magenta
@@ -46,6 +46,15 @@ public class LogPrinter {
      */
     public static void print(int index, String text) {
         System.out.println(getColorString(COLORS[index % COLORS.length]) + text + RESET);
+    }
+
+    /**
+     * Prints error message to the console.
+     *
+     * @param text  The error message.
+     */
+    public static void printError(String text) {
+        System.out.println(getColorString(new int[]{ 255, 0, 0}) + text + RESET);
     }
 
 }

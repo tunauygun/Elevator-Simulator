@@ -1,6 +1,7 @@
 package Elevator;
 
 import Common.*;
+import Floor.FaultType;
 
 /**
  * Elevator.java
@@ -19,7 +20,8 @@ public class Elevator implements Runnable {
     private int floorNumber;
     private boolean motorRunning;
     private boolean doorOpen;
-    private int elevatorId, time;
+    private int elevatorId;
+    double time, deadline;
     private UDPSenderReceiver senderReceiver;
 
     /**
@@ -38,7 +40,8 @@ public class Elevator implements Runnable {
         this.doorOpen = true;
         this.senderReceiver = new UDPSenderReceiver(0, Constants.SCHEDULER_PORT);
         this.currentState = new IdleState(this);
-        this.time = 0;
+        this.time = 0.0;
+        this.deadline = 0.0;
     }
 
     /**
@@ -52,12 +55,20 @@ public class Elevator implements Runnable {
         }
         return this.floorNumber - 1;
     }
-    public int getTime() {
+    public double getTime() {
         return time;
     }
-    public void setTime(int var) {
+    public void setTime(double var) {
         this.time = var + getTime();
     }
+
+    public double getDeadline() {
+        return deadline;
+    }
+    public void setDeadline(double var) {
+        this.deadline = var + getDeadline();
+    }
+    public void synchDeadline() {this.deadline = this.time;}
     /**
      * Sets the floor number to the next floor based on the current direction.
      */
@@ -192,6 +203,14 @@ public class Elevator implements Runnable {
         return senderReceiver;
     }
 
+    public boolean hasTransientFault(){
+        return this.subsystem.hasFault(FaultType.DOOR_FAULT, floorNumber);
+    }
+
+    public boolean hasHardFault(){
+        return this.subsystem.hasFault(FaultType.FLOOR_TIMER_FAULT, floorNumber);
+    }
+
     /**
      * Runs the elevator thread, handling its state transitions.
      */
@@ -199,4 +218,5 @@ public class Elevator implements Runnable {
     public void run() {
         this.currentState.handleState();
     }
+
 }
