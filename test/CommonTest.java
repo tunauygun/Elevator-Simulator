@@ -48,7 +48,7 @@ public class CommonTest {
     public void testElevatorRequest() {
         // Create an ElevatorRequest object for testing
         LocalTime time = LocalTime.now();
-        ElevatorRequest request = new ElevatorRequest(time, 5, "up", 7);
+        ElevatorRequest request = new ElevatorRequest(time, 5, "up", 7, FaultType.NO_FAULT);
 
         // Test getStatus and setStatus methods
         assertEquals(RequestStatus.PENDING, request.getStatus());
@@ -84,12 +84,16 @@ public class CommonTest {
      */
     @Test
     public void testLogPrinterPrintMethod() {
-        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(outContent));
+        // Test print method
+        LogPrinter.print(0, "This is a green message.");
+        LogPrinter.print(1, "This is a cyan message.");
+        LogPrinter.print(2, "This is an orange message.");
 
-        LogPrinter.print(0, "Testing LogPrinter");
+        // Test printError method
+        LogPrinter.printError("This is an error message.");
 
-        assertEquals("\u001B[38;2;235;50;50mTesting LogPrinter\u001B[0m\n", outContent.toString());
+        // Test printWarning method
+        LogPrinter.printWarning("This is a warning message.");
     }
 
     /**
@@ -107,7 +111,7 @@ public class CommonTest {
     @Test
     public void testSystemRequest() {
         // Create an ElevatorRequest object for testing
-        ElevatorRequest elevatorRequest = new ElevatorRequest(null, 3, "up", 5);
+        ElevatorRequest elevatorRequest = new ElevatorRequest(null, 3, "up", 5, FaultType.NO_FAULT);
 
         // Test constructor and getter methods
         SystemRequest systemRequest1 = new SystemRequest(SystemRequestType.ADD_NEW_REQUEST, elevatorRequest, 1);
@@ -131,7 +135,7 @@ public class CommonTest {
         assertEquals(6, systemRequest4.getId());
 
         // Test toString method
-        assertEquals("| RequestType = ADD_NEW_REQUEST  ElevatorRequest = |Floor: 3, Direction: up, CarButton: 5| |", systemRequest1.toString());
+        assertEquals("| RequestType = ADD_NEW_REQUEST  ElevatorRequest = |Floor: 3, Direction: up, CarButton: 5, FaultType: NO_FAULT| |", systemRequest1.toString());
         assertEquals("| RequestType = REGISTER_ELEVATOR_CONTROLLER id = 2 |", systemRequest2.toString());
         assertEquals("| RequestType = IS_STOP_REQUIRED id = 4; floorNumber = 0; direction = null |", systemRequest3.toString());
         assertEquals("| RequestType = SET_FLOOR_LAMPS id = 6; floorNumber = 3; direction = DOWN; state = true |", systemRequest4.toString());

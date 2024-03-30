@@ -1,5 +1,4 @@
-import Common.Direction;
-import Common.ElevatorRequest;
+import Common.*;
 import Elevator.*;
 import org.junit.jupiter.api.Test;
 
@@ -23,24 +22,25 @@ public class ElevatorTest {
         // Create Elevator and ElevatorSubsystem objects for testing
         ElevatorSubsystem subsystem = new ElevatorSubsystem(1);
         Elevator elevator = new Elevator(subsystem, 1);
+        ElevatorState closeDoorState = new CloseDoorState(elevator);
 
         // Test Elevator Construction
         assertNotNull(elevator);
-        assertEquals(Elevator.ElevatorState.IDLE, elevator.getCurrentState());
+        assertTrue(elevator.currentState instanceof IdleState);
         assertEquals(Direction.STOPPED, elevator.getDirection());
         assertEquals(1, elevator.getFloorNumber());
         assertTrue(elevator.isDoorOpen());
         assertFalse(elevator.isMotorRunning());
 
         // Test processing the ElevatorState
-        ElevatorRequest request = new ElevatorRequest(LocalTime.now(), 1, "up", 2);
+        ElevatorRequest request = new ElevatorRequest(LocalTime.now(), 1, "up", 2, FaultType.NO_FAULT);
         elevator.setPrimaryRequest(request);
 
-        elevator.setCurrentState(Elevator.ElevatorState.CLOSE_DOOR);
+        elevator.setCurrentState(closeDoorState);
 
-        elevator.processState();
+        closeDoorState.handleState();
 
-        assertEquals(Elevator.ElevatorState.MOVING, elevator.getCurrentState());
+        assertTrue(elevator.currentState instanceof MovingState);
 
         // Test getting the next floor number
         elevator.setDirection(Direction.UP);
@@ -59,7 +59,7 @@ public class ElevatorTest {
         ElevatorSubsystem subsystem = new ElevatorSubsystem(1);
 
         // Testing adding a new request
-        ElevatorRequest request = new ElevatorRequest(LocalTime.now(), 1, "up", 2);
+        ElevatorRequest request = new ElevatorRequest(LocalTime.now(), 1, "up", 2, FaultType.NO_FAULT);
         subsystem.addNewRequest(request);
         assertTrue(subsystem.hasWaitingRequests());
 
@@ -70,7 +70,7 @@ public class ElevatorTest {
         assertFalse(subsystem.hasWaitingRequests());
 
         // Testing receiving new primary requests
-        ElevatorRequest request2 = new ElevatorRequest(LocalTime.now(),2, "up", 4);
+        ElevatorRequest request2 = new ElevatorRequest(LocalTime.now(),2, "up", 4, FaultType.NO_FAULT);
         subsystem.addNewRequest(request2);
 
         ElevatorRequest primaryRequest = subsystem.receiveNewPrimaryRequest();
