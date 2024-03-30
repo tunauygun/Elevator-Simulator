@@ -203,11 +203,17 @@ public class Elevator implements Runnable {
         return senderReceiver;
     }
 
-    public boolean hasTransientFault(){
-        return this.subsystem.hasFault(FaultType.DOOR_FAULT, floorNumber);
+    public boolean hasTransientFault() {
+        if (primaryRequest.getStatus() == RequestStatus.PASSENGER_PICKED_UP && primaryRequest.getFault() == FaultType.DOOR_FAULT && primaryRequest.getCarButton() == floorNumber) {
+            return true;
+        }
+        return this.subsystem.hasFault(FaultType.DOOR_FAULT, getNextFloorNumber());
     }
 
-    public boolean hasHardFault(){
+    public boolean hasHardFault() {
+        if (primaryRequest.getStatus() == RequestStatus.PASSENGER_PICKED_UP && primaryRequest.getFault() == FaultType.FLOOR_TIMER_FAULT && primaryRequest.getCarButton() == floorNumber) {
+            return true;
+        }
         return this.subsystem.hasFault(FaultType.FLOOR_TIMER_FAULT, floorNumber);
     }
 
