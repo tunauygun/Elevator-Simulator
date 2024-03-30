@@ -48,7 +48,7 @@ public class OpenDoorState implements ElevatorState {
 
         // Wait for opening the door and loading
         try {
-            int doorOpeningDelay = hasDoorFault ? LOADING_TIME : (LOADING_TIME / 2);
+            int doorOpeningDelay = hasDoorFault ? (int) (LOADING_TIME * 1.10) : (LOADING_TIME / 2);
             Thread.sleep(doorOpeningDelay);
         } catch (InterruptedException e) {
         }
@@ -82,7 +82,7 @@ public class OpenDoorState implements ElevatorState {
             elevator.getSubsystem().setElevatorLamps(elevator.getPrimaryRequest().getCarButton(), false);
 
             // Get new request from queue
-            senderReceiver.sendSystemRequest(new SystemRequest(NEW_PRIMARY_REQUEST));
+            senderReceiver.sendSystemRequest(new SystemRequest(NEW_PRIMARY_REQUEST, elevatorId));
             elevator.setPrimaryRequest(ElevatorRequest.deserializeRequest(senderReceiver.receiveResponse()));
 
             if (elevator.getPrimaryRequest() == null) {

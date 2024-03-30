@@ -1,7 +1,5 @@
 package Common;
 
-import Floor.FaultType;
-
 import java.io.*;
 import java.time.LocalTime;
 

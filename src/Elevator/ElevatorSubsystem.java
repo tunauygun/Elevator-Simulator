@@ -6,7 +6,7 @@ import Common.Direction;
 import Common.ElevatorRequest;
 import Common.LogPrinter;
 import Common.RequestStatus;
-import Floor.FaultType;
+import Common.FaultType;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -241,15 +241,15 @@ public class ElevatorSubsystem {
         return false;
     }
 
-    public boolean hasFault(FaultType faultType, int floorNumber){
-        for (ElevatorRequest e: upRequests) {
-            if(e.getStatus() == RequestStatus.PASSENGER_PICKED_UP && e.getFault() == faultType && e.getCarButton() == floorNumber){
+    public boolean hasFault(FaultType faultType, int floorNumber) {
+        for (ElevatorRequest e : upRequests) {
+            if (e.getStatus() == RequestStatus.PASSENGER_PICKED_UP && e.getFault() == faultType && e.getCarButton() == floorNumber) {
                 return true;
             }
         }
 
-        for (ElevatorRequest e: downRequests) {
-            if(e.getStatus() == RequestStatus.PASSENGER_PICKED_UP && e.getFault() == faultType && e.getCarButton() == floorNumber){
+        for (ElevatorRequest e : downRequests) {
+            if (e.getStatus() == RequestStatus.PASSENGER_PICKED_UP && e.getFault() == faultType && e.getCarButton() == floorNumber) {
                 return true;
             }
         }
@@ -257,4 +257,20 @@ public class ElevatorSubsystem {
         return false;
     }
 
+    public ArrayList<ElevatorRequest> getWaitingRequests() {
+        ArrayList<ElevatorRequest> requestsNotPicked = new ArrayList<>();
+
+        for (ElevatorRequest e : upRequests) {
+            if (e.getStatus() != RequestStatus.PASSENGER_PICKED_UP) {
+                requestsNotPicked.add(e);
+            }
+        }
+
+        for (ElevatorRequest e : downRequests) {
+            if (e.getStatus() != RequestStatus.PASSENGER_PICKED_UP) {
+                requestsNotPicked.add(e);
+            }
+        }
+        return requestsNotPicked;
+    }
 }

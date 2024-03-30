@@ -1,7 +1,7 @@
 package Elevator;
 
 import Common.*;
-import Floor.FaultType;
+import Common.FaultType;
 
 /**
  * Elevator.java
@@ -207,7 +207,7 @@ public class Elevator implements Runnable {
         if (primaryRequest.getStatus() == RequestStatus.PASSENGER_PICKED_UP && primaryRequest.getFault() == FaultType.DOOR_FAULT && primaryRequest.getCarButton() == floorNumber) {
             return true;
         }
-        return this.subsystem.hasFault(FaultType.DOOR_FAULT, getNextFloorNumber());
+        return this.subsystem.hasFault(FaultType.DOOR_FAULT, floorNumber);
     }
 
     public boolean hasHardFault() {

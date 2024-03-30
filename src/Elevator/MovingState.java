@@ -1,8 +1,8 @@
 package Elevator;
 
-import Common.LogPrinter;
-import Common.SystemRequest;
-import Common.UDPSenderReceiver;
+import Common.*;
+
+import java.util.ArrayList;
 
 import static Common.Constants.*;
 import static Common.SystemRequestType.*;
@@ -87,10 +87,19 @@ public class MovingState implements ElevatorState {
         LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Deadline: " + elevator.getDeadline() + " Time: " + elevator.getTime());
 
         if (elevator.hasHardFault() || (elevator.getTime() > elevator.getDeadline())) {
+
+            ArrayList<ElevatorRequest> requests =  elevator.getSubsystem().getWaitingRequests();
+            if (elevator.getPrimaryRequest().getStatus() != RequestStatus.PASSENGER_PICKED_UP) {
+                requests.add(elevator.getPrimaryRequest());
+            }
+
+            senderReceiver.sendSystemRequest(new SystemRequest(ELEVATOR_SHUTDOWN_REQUEST, requests, elevatorId));
+
             // TODO: Let scheduler know this elevator is not available
             // Print Error Message
             LogPrinter.printError("Error: Elevator " + elevatorId + " FloorTimerFault at floor " + elevator.getFloorNumber());
             // TODO: If there is a fault, shut down
+            LogPrinter.print(elevatorId, "Elevator " + elevatorId + " is shutting down");
             elevator.setMotorRunning(false);
             return;
         }
