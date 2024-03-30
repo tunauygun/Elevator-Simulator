@@ -12,7 +12,7 @@ public class Main {
         for (int elevatorId = 0; elevatorId < Constants.NUMBER_OF_ELEVATORS; elevatorId++) {
             // Instantiate Elevator and Floor Subsystem
             ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem(elevatorId);
-            Elevator elev = new Elevator(elevatorSubsystem, elevatorId);
+            Elevator elev = new Elevator(elevatorSubsystem, elevatorId, true);
             ElevatorController elevatorCont = new ElevatorController(elev, elevatorSubsystem);
 
             Thread elevator = new Thread(elev, "Elevator" + elevatorId);

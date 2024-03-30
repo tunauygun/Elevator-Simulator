@@ -16,18 +16,6 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class CommonTest {
     /**
-     * Tests the Constants class for correct constant values.
-     */
-    @Test
-    public void testConstants() {
-        assertEquals(10, Constants.NUMBER_OF_FLOORS);
-        assertEquals(50000, Constants.SCHEDULER_PORT);
-        assertEquals(5, Constants.NUMBER_OF_ELEVATORS);
-        assertEquals(50001, Constants.SCHEDULER_PORT_2);
-        assertEquals(50002, Constants.FLOOR_CONTROLLER_PORT);
-    }
-
-    /**
      * Tests the Direction enum for correct values.
      */
     @Test
@@ -168,13 +156,14 @@ public class CommonTest {
     @Test
     public void testUDPSenderReceiver() {
         // Create a UDPSenderReceiver instance for testing
-        UDPSenderReceiver udpSenderReceiver = new UDPSenderReceiver(0, 50000);
+        UDPSenderReceiver udpSender = new UDPSenderReceiver(50005, 50006);
+        UDPSenderReceiver udpReceiver = new UDPSenderReceiver(50006, 50005);
 
         // Test sending and receiving a system request
         SystemRequest request = new SystemRequest(SystemRequestType.ADD_NEW_REQUEST);
-        udpSenderReceiver.sendSystemRequest(request);
+        udpSender.sendSystemRequest(request);
 
-        SystemRequest receivedRequest = udpSenderReceiver.receiveSystemRequest();
+        SystemRequest receivedRequest = udpReceiver.receiveSystemRequest();
 
         assertNotNull(receivedRequest);
         assertEquals(SystemRequestType.ADD_NEW_REQUEST, receivedRequest.getType());

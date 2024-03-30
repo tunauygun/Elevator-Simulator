@@ -41,10 +41,9 @@ public class IdleState implements ElevatorState {
         LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Waiting for a request at floor " + elevator.getFloorNumber() + "!");
 
         // Wait for the first/new elevator request and receive it from scheduler
-        do {
+        while (elevator.getPrimaryRequest() == null){
             senderReceiver.sendSystemRequest(new SystemRequest(NEW_PRIMARY_REQUEST, elevatorId));
             elevator.setPrimaryRequest(ElevatorRequest.deserializeRequest(senderReceiver.receiveResponse()));
-            // TODO: Set the deadline time
 
             if (elevator.getPrimaryRequest() == null) {
                 try {
@@ -52,7 +51,7 @@ public class IdleState implements ElevatorState {
                 } catch (InterruptedException e) {
                 }
             }
-        } while (elevator.getPrimaryRequest() == null);
+        }
 
         // Determine the direction that the elevator needs to move
         if (elevator.getPrimaryRequest().getCurrentTargetFloor() == elevator.getFloorNumber()) {

@@ -21,6 +21,7 @@ public class Elevator implements Runnable {
     private boolean motorRunning;
     private boolean doorOpen;
     private int elevatorId;
+    private boolean autoRun;
     double time, deadline;
     private UDPSenderReceiver senderReceiver;
 
@@ -30,9 +31,10 @@ public class Elevator implements Runnable {
      * @param subsystem  The elevator subsystem to which this elevator belongs.
      * @param elevatorId The unique identifier for this elevator.
      */
-    public Elevator(ElevatorSubsystem subsystem, int elevatorId) {
+    public Elevator(ElevatorSubsystem subsystem, int elevatorId, boolean autoRun) {
         this.subsystem = subsystem;
         this.elevatorId = elevatorId;
+        this.autoRun = autoRun;
         this.direction = Direction.STOPPED;
         this.floorNumber = 1;
         this.primaryRequest = null;
@@ -85,14 +87,18 @@ public class Elevator implements Runnable {
         return currentState;
     }
 
+
     /**
      * Sets the current state of the elevator and handles the state behavior.
      *
      * @param currentState The new state to set.
+     * @param autorunStates If true, states transitions causes the next state to start automatically
      */
     public void setCurrentState(ElevatorState currentState) {
         this.currentState = currentState;
-        this.currentState.handleState();
+        if(autoRun){
+            this.currentState.handleState();
+        }
     }
 
     /**

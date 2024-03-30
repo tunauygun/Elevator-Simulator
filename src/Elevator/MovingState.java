@@ -58,8 +58,13 @@ public class MovingState implements ElevatorState {
         do {
             // Check if a stop is required at the next stop
             nextFloorNumber = elevator.getNextFloorNumber();
-            senderReceiver.sendSystemRequest(new SystemRequest(IS_STOP_REQUIRED, nextFloorNumber, elevator.getDirection(), elevatorId));
-            isStopRequiredAtNextFloor = senderReceiver.receiveResponse()[0] == 1;
+
+            if(nextFloorNumber == elevator.getPrimaryRequest().getCurrentTargetFloor()){
+                isStopRequiredAtNextFloor = true;
+            }else {
+                senderReceiver.sendSystemRequest(new SystemRequest(IS_STOP_REQUIRED, nextFloorNumber, elevator.getDirection(), elevatorId));
+                isStopRequiredAtNextFloor = senderReceiver.receiveResponse()[0] == 1;
+            }
 
             //Increase deadline
             elevator.setDeadline(1.5 * INCREMENTAL_MOVE_TIME);

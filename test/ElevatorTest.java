@@ -19,35 +19,42 @@ public class ElevatorTest {
      */
     @Test
     public void testElevator() {
+
         // Create Elevator and ElevatorSubsystem objects for testing
         ElevatorSubsystem subsystem = new ElevatorSubsystem(1);
-        Elevator elevator = new Elevator(subsystem, 1);
+        Elevator elevator = new Elevator(subsystem, 1, false);
         ElevatorState closeDoorState = new CloseDoorState(elevator);
 
         // Test Elevator Construction
         assertNotNull(elevator);
-        assertTrue(elevator.currentState instanceof IdleState);
+        assertInstanceOf(IdleState.class, elevator.getCurrentState());
         assertEquals(Direction.STOPPED, elevator.getDirection());
         assertEquals(1, elevator.getFloorNumber());
         assertTrue(elevator.isDoorOpen());
         assertFalse(elevator.isMotorRunning());
 
         // Test processing the ElevatorState
-        ElevatorRequest request = new ElevatorRequest(LocalTime.now(), 1, "up", 2, FaultType.NO_FAULT);
+        ElevatorRequest request = new ElevatorRequest(LocalTime.now(), 1, "Up", 2, FaultType.NO_FAULT);
         elevator.setPrimaryRequest(request);
 
-        elevator.setCurrentState(closeDoorState);
+        assertInstanceOf(IdleState.class, elevator.getCurrentState());
 
-        closeDoorState.handleState();
+        elevator.getCurrentState().handleState();
+        assertInstanceOf(CloseDoorState.class, elevator.getCurrentState());
 
-        assertTrue(elevator.currentState instanceof MovingState);
+        // Test getting the floor number
+        assertEquals(1, elevator.getFloorNumber());
 
-        // Test getting the next floor number
-        elevator.setDirection(Direction.UP);
-        assertEquals(2, elevator.getNextFloorNumber());
+        elevator.getCurrentState().handleState();
+        assertInstanceOf(MovingState.class, elevator.getCurrentState());
 
-        elevator.setDirection(Direction.DOWN);
-        assertEquals(0, elevator.getNextFloorNumber());
+        elevator.getCurrentState().handleState();
+        assertInstanceOf(OpenDoorState.class, elevator.getCurrentState());
+
+        assertEquals(2, elevator.getFloorNumber());
+
+        assertEquals(3, elevator.getNextFloorNumber());
+
     }
 
     /**
