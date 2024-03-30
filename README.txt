@@ -88,4 +88,5 @@ Code: Tuna, Ethan and Sanay
 readMe File: Naveen
 UML Class Diagram : Ethan
 UML Sequence Diagram: Sanay
+Timing Diagram: Sanay
 Test Files: Ugonna
