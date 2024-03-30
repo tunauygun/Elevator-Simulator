@@ -95,6 +95,7 @@ public class FloorSubsystem implements Runnable {
                 }
 
                 ElevatorRequest event = new ElevatorRequest(time, Integer.parseInt(data[1]), data[2], Integer.parseInt(data[3]), faultType);
+
                 events.add(event);
             }
             myReader.close();

@@ -135,7 +135,7 @@ public class ElevatorRequest implements Serializable {
      */
     @Override
     public String toString() {
-        return String.format("|Floor: %s, Direction: %s, CarButton: %s|", floor, floorButton, carButton);
+        return String.format("|Floor: %s, Direction: %s, CarButton: %s, FaultType: %s|", floor, floorButton, carButton, faultType);
     }
 
     /**
