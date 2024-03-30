@@ -37,7 +37,7 @@ public class MovingState implements ElevatorState {
         int elevatorId = elevator.getElevatorId();
         UDPSenderReceiver senderReceiver = elevator.getSenderReceiver();
 
-        LogPrinter.print(elevatorId, "ELEVATOR " + elevatorId + " STATE: MOVING");
+        LogPrinter.print(elevatorId, "ELEVATOR " + elevatorId + " STATE: MOVING " + LogPrinter.getTimestamp());
         LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Current floor: " + elevator.getFloorNumber());
 
         elevator.setMotorRunning(true);

@@ -40,7 +40,7 @@ public class OpenDoorState implements ElevatorState {
         int elevatorId = elevator.getElevatorId();
         UDPSenderReceiver senderReceiver = elevator.getSenderReceiver();
 
-        LogPrinter.print(elevatorId, "ELEVATOR " + elevatorId + " STATE: OPEN_DOOR");
+        LogPrinter.print(elevatorId, "ELEVATOR " + elevatorId + " STATE: OPEN_DOOR " + LogPrinter.getTimestamp());
 
         boolean hasDoorFault = elevator.hasTransientFault();
 

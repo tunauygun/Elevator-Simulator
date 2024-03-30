@@ -1,5 +1,8 @@
 package Common;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+
 /**
  * LogPrinter.java
  * <p>
@@ -51,20 +54,30 @@ public class LogPrinter {
     /**
      * Prints error message to the console.
      *
-     * @param text  The error message.
+     * @param text The error message.
      */
     public static void printError(String text) {
-//        System.out.println(getColorString(new int[]{ 255, 0, 0}) + text + RESET);
         System.out.println("\u001B[30m" + "\u001B[101m" + text + RESET);
     }
 
     /**
      * Prints warning message to the console.
      *
-     * @param text  The warning message.
+     * @param text The warning message.
      */
     public static void printWarning(String text) {
-        System.out.println("\u001B[43m" + "\u001B[30m"+ text + RESET);
+        System.out.println("\u001B[43m" + "\u001B[30m" + text + RESET);
+    }
+
+    /**
+     * Gets the string representing the current time as a timestamp
+     *
+     * @return Timestamp string
+     */
+    public static String getTimestamp() {
+        LocalTime currentTime = LocalTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
+        return "(" + currentTime.format(formatter) + ")";
     }
 
 }

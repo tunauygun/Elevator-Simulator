@@ -37,7 +37,7 @@ public class IdleState implements ElevatorState {
         int elevatorId = elevator.getElevatorId();
         UDPSenderReceiver senderReceiver = elevator.getSenderReceiver();
 
-        LogPrinter.print(elevatorId, "ELEVATOR " + elevatorId + " STATE: IDLE");
+        LogPrinter.print(elevatorId, "ELEVATOR " + elevatorId + " STATE: IDLE " + LogPrinter.getTimestamp());
         LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Waiting for a request at floor " + elevator.getFloorNumber() + "!");
 
         // Wait for the first/new elevator request and receive it from scheduler
