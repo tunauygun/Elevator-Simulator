@@ -61,9 +61,8 @@ public class CloseDoorState implements ElevatorState {
         } catch (InterruptedException e) {
         }
         // TODO: Add sleep times to the time variable
-        elevator.setTime(LOADING_TIME/2);
         LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Door Closed");
-        System.out.println(elevator.getTime());
+
         // Update the door and lamp flags
         elevator.setDoorOpen(false);
         senderReceiver.sendSystemRequest(new SystemRequest(SET_FLOOR_DIRECTION_LAMPS, elevator.getFloorNumber(), elevator.getDirection(), false, elevatorId));

@@ -56,7 +56,7 @@ public class OpenDoorState implements ElevatorState {
         LocalTime endTime = LocalTime.now();
 
         if(Duration.between(startTime, endTime).toMillis() * 0.95 > LOADING_TIME/2){
-            LogPrinter.print(elevatorId, "Elevator " + elevatorId + " has door fault at floor " + elevator.getFloorNumber());
+            LogPrinter.printWarning("Elevator " + elevatorId + " has door fault at floor " + elevator.getFloorNumber());
             LogPrinter.print(elevatorId, "Elevator " + elevatorId + ": Waiting 5 seconds before attempting again.");
 
             try {
@@ -69,8 +69,6 @@ public class OpenDoorState implements ElevatorState {
         }
 
         // TODO: Add sleep times to the time variable
-        elevator.setTime(LOADING_TIME/2);//is this correct or should i add loading_time
-        System.out.println(elevator.getTime());
         elevator.setDoorOpen(true);
 
         LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Opened door at floor " + elevator.getFloorNumber());

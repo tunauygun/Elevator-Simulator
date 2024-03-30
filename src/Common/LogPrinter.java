@@ -54,7 +54,17 @@ public class LogPrinter {
      * @param text  The error message.
      */
     public static void printError(String text) {
-        System.out.println(getColorString(new int[]{ 255, 0, 0}) + text + RESET);
+//        System.out.println(getColorString(new int[]{ 255, 0, 0}) + text + RESET);
+        System.out.println("\u001B[30m" + "\u001B[101m" + text + RESET);
+    }
+
+    /**
+     * Prints warning message to the console.
+     *
+     * @param text  The warning message.
+     */
+    public static void printWarning(String text) {
+        System.out.println("\u001B[43m" + "\u001B[30m"+ text + RESET);
     }
 
 }

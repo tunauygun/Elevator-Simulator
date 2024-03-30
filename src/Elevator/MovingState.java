@@ -89,8 +89,10 @@ public class MovingState implements ElevatorState {
         if (elevator.hasHardFault() || (elevator.getTime() > elevator.getDeadline())) {
             // TODO: Let scheduler know this elevator is not available
             // Print Error Message
-            LogPrinter.printError("Error: Elevator " + elevatorId + " FloorTimerFault at floor" + elevator.getFloorNumber());
+            LogPrinter.printError("Error: Elevator " + elevatorId + " FloorTimerFault at floor " + elevator.getFloorNumber());
             // TODO: If there is a fault, shut down
+            elevator.setMotorRunning(false);
+            return;
         }
 
         LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Stopped at floor " + elevator.getFloorNumber());
