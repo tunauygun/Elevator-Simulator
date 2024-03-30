@@ -11,7 +11,7 @@ package Common;
  */
 public final class Constants {
     public static final int NUMBER_OF_FLOORS = 10;
-    public static final int NUMBER_OF_ELEVATORS = 5;
+    public static final int NUMBER_OF_ELEVATORS = 3;
 
     // Port Numbers
     public static final int SCHEDULER_PORT = 50000;

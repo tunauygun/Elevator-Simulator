@@ -18,6 +18,8 @@ public class ElevatorRequest implements Serializable {
     private int floor, carButton;
     private RequestStatus status;
 
+    private FaultType faultType;
+
     // TODO: Add timestamps for total time and deadline
 
     /**
@@ -29,12 +31,17 @@ public class ElevatorRequest implements Serializable {
      * @param carButton   An integer representing floor button within the elevator which is providing service
      *                    to the passenger
      */
-    public ElevatorRequest(LocalTime time, int floor, String floorButton, int carButton) {
+    public ElevatorRequest(LocalTime time, int floor, String floorButton, int carButton, FaultType faultType) {
         this.time = time;
         this.floor = floor;
         this.floorButton = floorButton;
         this.carButton = carButton;
         this.status = RequestStatus.PENDING;
+        this.faultType = faultType;
+    }
+
+    public FaultType getFault() {
+        return faultType;
     }
 
     /**
@@ -126,7 +133,7 @@ public class ElevatorRequest implements Serializable {
      */
     @Override
     public String toString() {
-        return String.format("|Floor: %s, Direction: %s, CarButton: %s|", floor, floorButton, carButton);
+        return String.format("|Floor: %s, Direction: %s, CarButton: %s, FaultType: %s|", floor, floorButton, carButton, faultType);
     }
 
     /**

@@ -1,6 +1,7 @@
 package Elevator;
 
 import Common.*;
+import Common.FaultType;
 
 /**
  * Elevator.java
@@ -20,6 +21,8 @@ public class Elevator implements Runnable {
     private boolean motorRunning;
     private boolean doorOpen;
     private int elevatorId;
+    private boolean autoRun;
+    double time, deadline;
     private UDPSenderReceiver senderReceiver;
 
     /**
@@ -28,9 +31,10 @@ public class Elevator implements Runnable {
      * @param subsystem  The elevator subsystem to which this elevator belongs.
      * @param elevatorId The unique identifier for this elevator.
      */
-    public Elevator(ElevatorSubsystem subsystem, int elevatorId) {
+    public Elevator(ElevatorSubsystem subsystem, int elevatorId, boolean autoRun) {
         this.subsystem = subsystem;
         this.elevatorId = elevatorId;
+        this.autoRun = autoRun;
         this.direction = Direction.STOPPED;
         this.floorNumber = 1;
         this.primaryRequest = null;
@@ -38,6 +42,8 @@ public class Elevator implements Runnable {
         this.doorOpen = true;
         this.senderReceiver = new UDPSenderReceiver(0, Constants.SCHEDULER_PORT);
         this.currentState = new IdleState(this);
+        this.time = 0.0;
+        this.deadline = 0.0;
     }
 
     /**
@@ -51,7 +57,20 @@ public class Elevator implements Runnable {
         }
         return this.floorNumber - 1;
     }
+    public double getTime() {
+        return time;
+    }
+    public void setTime(double var) {
+        this.time = var + getTime();
+    }
 
+    public double getDeadline() {
+        return deadline;
+    }
+    public void setDeadline(double var) {
+        this.deadline = var + getDeadline();
+    }
+    public void synchDeadline() {this.deadline = this.time;}
     /**
      * Sets the floor number to the next floor based on the current direction.
      */
@@ -68,14 +87,18 @@ public class Elevator implements Runnable {
         return currentState;
     }
 
+
     /**
      * Sets the current state of the elevator and handles the state behavior.
      *
      * @param currentState The new state to set.
+     * @param autorunStates If true, states transitions causes the next state to start automatically
      */
     public void setCurrentState(ElevatorState currentState) {
         this.currentState = currentState;
-        this.currentState.handleState();
+        if(autoRun){
+            this.currentState.handleState();
+        }
     }
 
     /**
@@ -186,6 +209,20 @@ public class Elevator implements Runnable {
         return senderReceiver;
     }
 
+    public boolean hasTransientFault() {
+        if (primaryRequest.getStatus() == RequestStatus.PASSENGER_PICKED_UP && primaryRequest.getFault() == FaultType.DOOR_FAULT && primaryRequest.getCarButton() == floorNumber) {
+            return true;
+        }
+        return this.subsystem.hasFault(FaultType.DOOR_FAULT, floorNumber);
+    }
+
+    public boolean hasHardFault() {
+        if (primaryRequest.getStatus() == RequestStatus.PASSENGER_PICKED_UP && primaryRequest.getFault() == FaultType.FLOOR_TIMER_FAULT && primaryRequest.getCarButton() == floorNumber) {
+            return true;
+        }
+        return this.subsystem.hasFault(FaultType.FLOOR_TIMER_FAULT, floorNumber);
+    }
+
     /**
      * Runs the elevator thread, handling its state transitions.
      */
@@ -193,4 +230,5 @@ public class Elevator implements Runnable {
     public void run() {
         this.currentState.handleState();
     }
+
 }

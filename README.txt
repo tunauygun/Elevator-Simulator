@@ -2,7 +2,7 @@ SYSC3303-A2-4
 
 SYSC 3303 A
 Lab A2 Group 4
-Iteration 3
+Iteration 4
 
 Group Members:
     Naveen Sajeendran, 101252825
@@ -76,18 +76,17 @@ Inside the Scheduler folder
     Scheduler.java
 
 --- RUNNING THE PROJECT ---
-1) Open IntelliJ and open the folder from Iteration 3
-2) Then go into the src folder which has all the code files and folders and open them all in IntelliJ
-3) Go to Scheduler folder and run the Main.java file
-4) Go to Elevator folder and run the Main.java file
-5) Go to the Floor folder and run the Main.java file
+To set this up:
+    1) Open IntelliJ and open the folder from Iteration 3
+    2) Then go into the src folder which has all the code files and folders and open them all in IntelliJ
+    3) Go to Scheduler folder and run the Main.java file
+    4) Go to Elevator folder and run the Main.java file
+    5) Go to the Floor folder and run the Main.java file
 
 --- TASK BREAKDOWN ---
-Code:
-    Implementing the UDP communication between Elevator, Scheduler, and Floor subsystems: Tuna
-    Implementing the use of Offset time from the input data: Ethan
-    Implementing the selection of the best elevator in the system to assign a request: Sanay and Tuna
-ReadMe File: Naveen
+Code: Tuna, Ethan and Sanay
+readMe File: Naveen
 UML Class Diagram : Ethan
 UML Sequence Diagram: Sanay
+Timing Diagram: Sanay
 Test Files: Ugonna

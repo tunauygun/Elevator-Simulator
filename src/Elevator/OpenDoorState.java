@@ -2,6 +2,9 @@ package Elevator;
 
 import Common.*;
 
+import java.time.Duration;
+import java.time.LocalTime;
+
 import static Common.Constants.*;
 import static Common.SystemRequestType.*;
 
@@ -37,13 +40,34 @@ public class OpenDoorState implements ElevatorState {
         int elevatorId = elevator.getElevatorId();
         UDPSenderReceiver senderReceiver = elevator.getSenderReceiver();
 
-        LogPrinter.print(elevatorId, "ELEVATOR " + elevatorId + " STATE: OPEN_DOOR");
+        LogPrinter.print(elevatorId, "ELEVATOR " + elevatorId + " STATE: OPEN_DOOR " + LogPrinter.getTimestamp());
+
+        boolean hasDoorFault = elevator.hasTransientFault();
+
+        LocalTime startTime = LocalTime.now();
 
         // Wait for opening the door and loading
         try {
-            Thread.sleep(LOADING_TIME / 2);
+            int doorOpeningDelay = hasDoorFault ? (int) (LOADING_TIME * 1.10) : (LOADING_TIME / 2);
+            Thread.sleep(doorOpeningDelay);
         } catch (InterruptedException e) {
         }
+
+        LocalTime endTime = LocalTime.now();
+
+        if(Duration.between(startTime, endTime).toMillis() * 0.95 > LOADING_TIME/2){
+            LogPrinter.printWarning("Elevator " + elevatorId + " has door fault at floor " + elevator.getFloorNumber());
+            LogPrinter.print(elevatorId, "Elevator " + elevatorId + ": Waiting 5 seconds before attempting again.");
+
+            try {
+                Thread.sleep(5000);
+                LogPrinter.print(elevatorId, "Elevator " + elevatorId + ": Attempting again.");
+                int doorOpeningDelay = hasDoorFault ? LOADING_TIME : (LOADING_TIME / 2);
+                Thread.sleep(doorOpeningDelay);
+            } catch (InterruptedException e) {
+            }
+        }
+
         // TODO: Add sleep times to the time variable
         elevator.setDoorOpen(true);
 
@@ -58,7 +82,7 @@ public class OpenDoorState implements ElevatorState {
             elevator.getSubsystem().setElevatorLamps(elevator.getPrimaryRequest().getCarButton(), false);
 
             // Get new request from queue
-            senderReceiver.sendSystemRequest(new SystemRequest(NEW_PRIMARY_REQUEST));
+            senderReceiver.sendSystemRequest(new SystemRequest(NEW_PRIMARY_REQUEST, elevatorId));
             elevator.setPrimaryRequest(ElevatorRequest.deserializeRequest(senderReceiver.receiveResponse()));
 
             if (elevator.getPrimaryRequest() == null) {

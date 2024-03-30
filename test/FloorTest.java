@@ -1,5 +1,6 @@
 import Common.Direction;
 import Common.ElevatorRequest;
+import Common.FaultType;
 import Floor.*;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +25,7 @@ public class FloorTest {
         Floor floor = new Floor(1, 5);
 
         // Testing adding a new request and checking for it
-        ElevatorRequest request = new ElevatorRequest(LocalTime.now(), 1, "up", 3);
+        ElevatorRequest request = new ElevatorRequest(LocalTime.now(), 1, "up", 3, FaultType.NO_FAULT);
         floor.addRequest(request);
 
         ElevatorRequest processedRequest = floor.checkForRequests();

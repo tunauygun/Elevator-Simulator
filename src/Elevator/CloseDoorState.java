@@ -41,7 +41,7 @@ public class CloseDoorState implements ElevatorState {
         int elevatorId = elevator.getElevatorId();
         UDPSenderReceiver senderReceiver = elevator.getSenderReceiver();
 
-        LogPrinter.print(elevatorId, "ELEVATOR " + elevatorId + " STATE: CLOSE_DOOR");
+        LogPrinter.print(elevatorId, "ELEVATOR " + elevatorId + " STATE: CLOSE_DOOR " + LogPrinter.getTimestamp());
 
         // Check if we picked up the passenger for the primary request
         if (elevator.getPrimaryRequest().getCurrentTargetFloor() == elevator.getFloorNumber() && elevator.getPrimaryRequest().getStatus() == RequestStatus.PENDING) {

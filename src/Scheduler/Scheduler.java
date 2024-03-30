@@ -100,6 +100,18 @@ public class Scheduler implements Runnable {
                     LogPrinter.print(request.getId(), "Received SET_FLOOR_DIRECTION_LAMPS request. Forwarding it to Floor Controller");
                     senderReceiver2.sendSystemRequest(request, Constants.FLOOR_CONTROLLER_PORT);
                 }
+                case ELEVATOR_SHUTDOWN_REQUEST -> {
+                    LogPrinter.print(request.getId(), "Received ELEVATOR_SHUTDOWN_REQUEST. Removing the elevator from the system");
+                    elevatorPorts[request.getId()] = 0;
+
+                    System.out.println("Reassigning waiting floor request to other elevators.");
+                    for(ElevatorRequest r: request.getElevatorRequests()){
+                        int bestElevatorId = selectBestElevatorNumber(r);
+                        senderReceiver2.sendSystemRequest(new SystemRequest(ADD_NEW_REQUEST, r, 0), elevatorPorts[bestElevatorId]);
+                        System.out.println("Reassigning the request to Elevator " + bestElevatorId);
+                    }
+
+                }
                 // TODO: Add a new case corresponding to elevator shutdown, and remove the elevator from the port list
                 // TODO: Add new case for time check requests from the elevator
             }
@@ -118,6 +130,9 @@ public class Scheduler implements Runnable {
         // Get the status of all elevators
         ArrayList<ElevatorStatus> elevatorStatuses = new ArrayList<>();
         for (int elevatorPort : elevatorPorts) {
+            if(elevatorPort == 0){
+                continue;
+            }
             senderReceiver2.sendSystemRequest(new SystemRequest(STATUS_REQUEST), elevatorPort);
             ElevatorStatus elevatorStatus = ElevatorStatus.deserializeStatus(senderReceiver2.receiveResponse());
             elevatorStatuses.add(elevatorStatus);
@@ -131,34 +146,33 @@ public class Scheduler implements Runnable {
         }
 
         // Get a list of all idle elevators
-        ArrayList<Integer> idleElevators = new ArrayList<>();
+        ArrayList<ElevatorStatus> idleElevators = new ArrayList<>();
         for (int i = 0; i < elevatorStatuses.size(); i++) {
             if (elevatorStatuses.get(i).getDirection() == Direction.STOPPED) {
-                idleElevators.add(i);
+                idleElevators.add(elevatorStatuses.get(i));
             }
         }
 
         // Get the list of candidate elevators for the request
-        List<Integer> candidateElevators;
+        List<ElevatorStatus> candidateElevators = new ArrayList<>();
         if (!idleElevators.isEmpty()) {
             candidateElevators = idleElevators;
         } else {
-            candidateElevators = IntStream.range(0, elevatorPorts.length).boxed().collect(Collectors.toList());
+            candidateElevators = elevatorStatuses;
         }
 
         // Find the closest elevator
-        int bestElevatorIndex = -1;
+        int bestElevatorId = -1;
         int minDistance = Integer.MAX_VALUE;
-        for (int i : candidateElevators) {
-            ElevatorStatus elevator = elevatorStatuses.get(i);
+        for (ElevatorStatus elevator : candidateElevators) {
             int distance = Math.abs(elevator.getFloorNumber() - elevatorRequest.getFloor());
 
             if (distance < minDistance) {
                 minDistance = distance;
-                bestElevatorIndex = i;
+                bestElevatorId = elevator.getElevatorId();
             }
         }
 
-        return bestElevatorIndex;
+        return bestElevatorId;
     }
 }

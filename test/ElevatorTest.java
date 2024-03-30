@@ -1,5 +1,4 @@
-import Common.Direction;
-import Common.ElevatorRequest;
+import Common.*;
 import Elevator.*;
 import org.junit.jupiter.api.Test;
 
@@ -20,34 +19,42 @@ public class ElevatorTest {
      */
     @Test
     public void testElevator() {
+
         // Create Elevator and ElevatorSubsystem objects for testing
         ElevatorSubsystem subsystem = new ElevatorSubsystem(1);
-        Elevator elevator = new Elevator(subsystem, 1);
+        Elevator elevator = new Elevator(subsystem, 1, false);
+        ElevatorState closeDoorState = new CloseDoorState(elevator);
 
         // Test Elevator Construction
         assertNotNull(elevator);
-        assertEquals(Elevator.ElevatorState.IDLE, elevator.getCurrentState());
+        assertInstanceOf(IdleState.class, elevator.getCurrentState());
         assertEquals(Direction.STOPPED, elevator.getDirection());
         assertEquals(1, elevator.getFloorNumber());
         assertTrue(elevator.isDoorOpen());
         assertFalse(elevator.isMotorRunning());
 
         // Test processing the ElevatorState
-        ElevatorRequest request = new ElevatorRequest(LocalTime.now(), 1, "up", 2);
+        ElevatorRequest request = new ElevatorRequest(LocalTime.now(), 1, "Up", 2, FaultType.NO_FAULT);
         elevator.setPrimaryRequest(request);
 
-        elevator.setCurrentState(Elevator.ElevatorState.CLOSE_DOOR);
+        assertInstanceOf(IdleState.class, elevator.getCurrentState());
 
-        elevator.processState();
+        elevator.getCurrentState().handleState();
+        assertInstanceOf(CloseDoorState.class, elevator.getCurrentState());
 
-        assertEquals(Elevator.ElevatorState.MOVING, elevator.getCurrentState());
+        // Test getting the floor number
+        assertEquals(1, elevator.getFloorNumber());
 
-        // Test getting the next floor number
-        elevator.setDirection(Direction.UP);
-        assertEquals(2, elevator.getNextFloorNumber());
+        elevator.getCurrentState().handleState();
+        assertInstanceOf(MovingState.class, elevator.getCurrentState());
 
-        elevator.setDirection(Direction.DOWN);
-        assertEquals(0, elevator.getNextFloorNumber());
+        elevator.getCurrentState().handleState();
+        assertInstanceOf(OpenDoorState.class, elevator.getCurrentState());
+
+        assertEquals(2, elevator.getFloorNumber());
+
+        assertEquals(3, elevator.getNextFloorNumber());
+
     }
 
     /**
@@ -59,7 +66,7 @@ public class ElevatorTest {
         ElevatorSubsystem subsystem = new ElevatorSubsystem(1);
 
         // Testing adding a new request
-        ElevatorRequest request = new ElevatorRequest(LocalTime.now(), 1, "up", 2);
+        ElevatorRequest request = new ElevatorRequest(LocalTime.now(), 1, "up", 2, FaultType.NO_FAULT);
         subsystem.addNewRequest(request);
         assertTrue(subsystem.hasWaitingRequests());
 
@@ -70,7 +77,7 @@ public class ElevatorTest {
         assertFalse(subsystem.hasWaitingRequests());
 
         // Testing receiving new primary requests
-        ElevatorRequest request2 = new ElevatorRequest(LocalTime.now(),2, "up", 4);
+        ElevatorRequest request2 = new ElevatorRequest(LocalTime.now(),2, "up", 4, FaultType.NO_FAULT);
         subsystem.addNewRequest(request2);
 
         ElevatorRequest primaryRequest = subsystem.receiveNewPrimaryRequest();

@@ -1,6 +1,7 @@
 package Common;
 
 import java.io.*;
+import java.util.ArrayList;
 
 /**
  * SystemRequest.java
@@ -13,12 +14,12 @@ import java.io.*;
  */
 public class SystemRequest implements Serializable {
     private int id;
-
     private int floorNumber;
     private Direction direction;
     private boolean state;
     private SystemRequestType type;
     private ElevatorRequest elevatorRequest;
+    private ArrayList<ElevatorRequest> elevatorRequests;
 
     /**
      * Creates a system request with the specified type.
@@ -37,6 +38,19 @@ public class SystemRequest implements Serializable {
      */
     public SystemRequest(SystemRequestType type, int id) {
         this.type = type;
+        this.id = id;
+    }
+
+    /**
+     * Creates a system request with the specified type, elevator requests, and ID.
+     *
+     * @param type             The type of the system request.
+     * @param elevatorRequests The associated elevator requests.
+     * @param id               The id of the elevator.
+     */
+    public SystemRequest(SystemRequestType type, ArrayList<ElevatorRequest> elevatorRequests, int id) {
+        this.type = type;
+        this.elevatorRequests = elevatorRequests;
         this.id = id;
     }
 
@@ -210,5 +224,14 @@ public class SystemRequest implements Serializable {
 
         str += " |";
         return str;
+    }
+
+    /**
+     * Gets the list of elevator requests associated with this system request.
+     *
+     * @return The list of elevator requests.
+     */
+    public ArrayList<ElevatorRequest> getElevatorRequests() {
+        return elevatorRequests;
     }
 }
