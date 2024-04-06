@@ -41,6 +41,8 @@ public class MovingState implements ElevatorState {
         LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Current floor: " + elevator.getFloorNumber());
 
         elevator.setMotorRunning(true);
+
+        elevator.getSubsystem().clearBoardingCounters();
 ;
         // Set the expected deadline for the elevator (1.5x the total move time per floor)
         elevator.synchDeadline();

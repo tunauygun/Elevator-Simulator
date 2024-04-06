@@ -11,7 +11,8 @@ package Common;
  */
 public final class Constants {
     public static final int NUMBER_OF_FLOORS = 10;
-    public static final int NUMBER_OF_ELEVATORS = 3;
+    public static final int NUMBER_OF_ELEVATORS = 1;
+    public static final int MAX_PASSENGER_COUNT = 5;
 
     // Port Numbers
     public static final int SCHEDULER_PORT = 50000;
@@ -22,4 +23,5 @@ public final class Constants {
     public static final int BASE_MOVE_TIME = 5762;
     public static final int INCREMENTAL_MOVE_TIME = 2240;
     public static final int LOADING_TIME = 11210;
+    public static final int BOARDING_TIME_PER_PASSENGER = 5000;
 }

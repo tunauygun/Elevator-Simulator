@@ -55,14 +55,14 @@ public class OpenDoorState implements ElevatorState {
 
         LocalTime endTime = LocalTime.now();
 
-        if(Duration.between(startTime, endTime).toMillis() * 0.95 > LOADING_TIME/2){
+        if(Duration.between(startTime, endTime).toMillis() * 0.95 > LOADING_TIME / 2){
             LogPrinter.printWarning("Elevator " + elevatorId + " has door fault at floor " + elevator.getFloorNumber());
             LogPrinter.print(elevatorId, "Elevator " + elevatorId + ": Waiting 5 seconds before attempting again.");
 
             try {
                 Thread.sleep(5000);
                 LogPrinter.print(elevatorId, "Elevator " + elevatorId + ": Attempting again.");
-                int doorOpeningDelay = hasDoorFault ? LOADING_TIME : (LOADING_TIME / 2);
+                int doorOpeningDelay = (LOADING_TIME / 2);
                 Thread.sleep(doorOpeningDelay);
             } catch (InterruptedException e) {
             }
@@ -71,15 +71,24 @@ public class OpenDoorState implements ElevatorState {
         // TODO: Add sleep times to the time variable
         elevator.setDoorOpen(true);
 
-        LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Opened door at floor " + elevator.getFloorNumber());
 
         // Process elevator requests that are completed by visiting current floor
         senderReceiver.sendSystemRequest(new SystemRequest(PROCESS_COMPLETED_REQUESTS, elevator.getFloorNumber(), elevator.getDirection(), elevatorId));
+
+        LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Opened door at floor " + elevator.getFloorNumber());
+
+        try{
+            Thread.sleep((elevator.getSubsystem().getUnboardingPassengerCount() * BOARDING_TIME_PER_PASSENGER));
+            LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Unboarding Passenger Count: " + elevator.getSubsystem().getBoardingPassengerCount() + " WaitTime: " + ((elevator.getSubsystem().getBoardingPassengerCount() * BOARDING_TIME_PER_PASSENGER)));
+        }catch (InterruptedException e){
+        }
+
 
         // Check if the primary request is completed
         if (elevator.getPrimaryRequest().getCurrentTargetFloor() == elevator.getFloorNumber() && elevator.getPrimaryRequest().getStatus() == RequestStatus.PASSENGER_PICKED_UP) {
             LogPrinter.print(elevatorId, " Completed primary request: " + elevator.getPrimaryRequest());
             elevator.getSubsystem().setElevatorLamps(elevator.getPrimaryRequest().getCarButton(), false);
+            elevator.getSubsystem().updateCountersForUnboardingPassengers();
 
             // Get new request from queue
             senderReceiver.sendSystemRequest(new SystemRequest(NEW_PRIMARY_REQUEST, elevatorId));
