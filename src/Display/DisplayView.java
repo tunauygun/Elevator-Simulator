@@ -1,18 +1,20 @@
-package Elevator;
+package Display;
 
 //Imports
+import Elevator.Elevator;
+import Elevator.ElevatorSubsystem;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
-public class ElevatorDisplayView extends JFrame{
+public class DisplayView extends JFrame{
     //View Component for Elevator Display
-    private final ElevatorDisplayController controller;
+    private final DisplayController controller;
     private ArrayList<Elevator> elevators = new ArrayList<Elevator>();
     //JPanels
     private JPanel center;
     private JScrollPane sp;
-    public ElevatorDisplayView(ElevatorDisplayController controller) {
+    public DisplayView(DisplayController controller) {
         super("Elevator UI");
         this.controller = controller;
 
@@ -63,15 +65,19 @@ public class ElevatorDisplayView extends JFrame{
     }
 
     public void addElevator(Elevator elevator) {
-        //Add Elevator to List of Elevators
         this.elevators.add(elevator);
-        //Create a new Elevator Info Panel
         this.center.add(elevatorInfoPanel(elevator));
+        this.center.revalidate();
+        this.center.repaint();
+    }
+
+    public void updateDisplay() {
+
     }
 
 
     public static void main(String[] args) {
-        ElevatorDisplayController controller = new ElevatorDisplayController();
+        DisplayController controller = new DisplayController();
         ElevatorSubsystem sub = new ElevatorSubsystem(0);
         Elevator elev0 = new Elevator(sub, 0, false);
         Elevator elev1 = new Elevator(sub, 1, false);
@@ -81,7 +87,7 @@ public class ElevatorDisplayView extends JFrame{
         Elevator elev5 = new Elevator(sub, 5, false);
 
 
-        ElevatorDisplayView view = new ElevatorDisplayView(controller);
+        DisplayView view = new DisplayView(controller);
         view.addElevator(elev0);
         view.addElevator(elev1);
         view.addElevator(elev2);

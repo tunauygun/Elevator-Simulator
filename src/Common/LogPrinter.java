@@ -80,4 +80,6 @@ public class LogPrinter {
         return "(" + currentTime.format(formatter) + ")";
     }
 
+    public static int[][] getColors() {return COLORS;}
+
 }
