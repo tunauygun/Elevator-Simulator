@@ -44,25 +44,28 @@ public class OpenDoorState implements ElevatorState {
 
         boolean hasDoorFault = elevator.hasTransientFault();
 
-        LocalTime startTime = LocalTime.now();
-
         // Wait for opening the door and loading
+        int doorOpeningDelay = hasDoorFault ? LOADING_TIME : (LOADING_TIME / 2);
+
         try {
-            int doorOpeningDelay = hasDoorFault ? (int) (LOADING_TIME * 1.10) : (LOADING_TIME / 2);
+            elevator.setTime(doorOpeningDelay);
+            elevator.setDeadline(LOADING_TIME / 2);
+            elevator.setTotalTime(doorOpeningDelay);
             Thread.sleep(doorOpeningDelay);
         } catch (InterruptedException e) {
         }
 
-        LocalTime endTime = LocalTime.now();
-
-        if(Duration.between(startTime, endTime).toMillis() * 0.95 > LOADING_TIME / 2){
+        if(doorOpeningDelay > (LOADING_TIME / 2)){
             LogPrinter.printWarning("Elevator " + elevatorId + " has door fault at floor " + elevator.getFloorNumber());
-            LogPrinter.print(elevatorId, "Elevator " + elevatorId + ": Waiting 5 seconds before attempting again.");
+            LogPrinter.print(elevatorId, "Elevator " + elevatorId + ": Waiting before attempting again.");
 
             try {
-                Thread.sleep(5000);
+                Thread.sleep(TRANSIENT_FAULT_TIME);
+                elevator.setTotalTime(TRANSIENT_FAULT_TIME);
                 LogPrinter.print(elevatorId, "Elevator " + elevatorId + ": Attempting again.");
-                int doorOpeningDelay = (LOADING_TIME / 2);
+                doorOpeningDelay = (LOADING_TIME / 2);
+                elevator.setTime(doorOpeningDelay);
+                elevator.setTotalTime(doorOpeningDelay);
                 Thread.sleep(doorOpeningDelay);
             } catch (InterruptedException e) {
             }
@@ -77,18 +80,20 @@ public class OpenDoorState implements ElevatorState {
 
         LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Opened door at floor " + elevator.getFloorNumber());
 
-        try{
-            Thread.sleep((elevator.getSubsystem().getUnboardingPassengerCount() * BOARDING_TIME_PER_PASSENGER));
-            LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Unboarding Passenger Count: " + elevator.getSubsystem().getBoardingPassengerCount() + " WaitTime: " + ((elevator.getSubsystem().getBoardingPassengerCount() * BOARDING_TIME_PER_PASSENGER)));
-        }catch (InterruptedException e){
-        }
-
-
         // Check if the primary request is completed
         if (elevator.getPrimaryRequest().getCurrentTargetFloor() == elevator.getFloorNumber() && elevator.getPrimaryRequest().getStatus() == RequestStatus.PASSENGER_PICKED_UP) {
             LogPrinter.print(elevatorId, " Completed primary request: " + elevator.getPrimaryRequest());
             elevator.getSubsystem().setElevatorLamps(elevator.getPrimaryRequest().getCarButton(), false);
             elevator.getSubsystem().updateCountersForUnboardingPassengers();
+
+            try{
+                elevator.setTime(elevator.getSubsystem().getUnboardingPassengerCount() * BOARDING_TIME_PER_PASSENGER);
+                elevator.setTotalTime(elevator.getSubsystem().getUnboardingPassengerCount() * BOARDING_TIME_PER_PASSENGER);
+                elevator.setDeadline(elevator.getSubsystem().getUnboardingPassengerCount() * BOARDING_TIME_PER_PASSENGER);
+                Thread.sleep((elevator.getSubsystem().getUnboardingPassengerCount() * BOARDING_TIME_PER_PASSENGER));
+                LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Unboarding Passenger Count: " + elevator.getSubsystem().getUnboardingPassengerCount() + " WaitTime: " + ((elevator.getSubsystem().getUnboardingPassengerCount() * BOARDING_TIME_PER_PASSENGER)));
+            }catch (InterruptedException e){
+            }
 
             // Get new request from queue
             senderReceiver.sendSystemRequest(new SystemRequest(NEW_PRIMARY_REQUEST, elevatorId));
@@ -96,6 +101,8 @@ public class OpenDoorState implements ElevatorState {
 
             if (elevator.getPrimaryRequest() == null) {
                 LogPrinter.print(elevatorId, "Elevator " + elevatorId + ": No request in queue, going to IDLE");
+                LogPrinter.print(elevatorId, "------------moved floor: "+elevator.getMovements());
+                LogPrinter.print(elevatorId, "------------Total time taken: " + elevator.getTotalTime());
                 elevator.setCurrentState(new IdleState(elevator));
             } else {
                 LogPrinter.print(elevatorId, "Elevator " + elevatorId + ": New primary request: " + elevator.getPrimaryRequest());
@@ -114,10 +121,18 @@ public class OpenDoorState implements ElevatorState {
                 senderReceiver.sendSystemRequest(new SystemRequest(SET_FLOOR_DIRECTION_LAMPS, floorNumber, direction, true, elevatorId));
                 LogPrinter.print(elevatorId, "Set floor lamp: Direction=" + direction + " FloorNumber=" + floorNumber + "state=" + false);
                 LogPrinter.print(elevatorId, "Set floor direction lamp: Direction = " + direction + " FloorNumber = " + floorNumber + " state = " + true);
-
                 elevator.setCurrentState(new CloseDoorState(elevator));
             }
         } else {
+            try{
+                elevator.setTime(elevator.getSubsystem().getUnboardingPassengerCount() * BOARDING_TIME_PER_PASSENGER);
+                elevator.setTotalTime(elevator.getSubsystem().getUnboardingPassengerCount() * BOARDING_TIME_PER_PASSENGER);
+                elevator.setDeadline(elevator.getSubsystem().getUnboardingPassengerCount() * BOARDING_TIME_PER_PASSENGER);
+                Thread.sleep((elevator.getSubsystem().getUnboardingPassengerCount() * BOARDING_TIME_PER_PASSENGER));
+                LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Unboarding Passenger Count: " + elevator.getSubsystem().getUnboardingPassengerCount() + " WaitTime: " + ((elevator.getSubsystem().getUnboardingPassengerCount() * BOARDING_TIME_PER_PASSENGER)));
+            }catch (InterruptedException e){
+            }
+
             // We didn't complete the primary request. Update lamps and sent the state to close the door
             Direction direction = elevator.getDirection();
             int floorNumber = elevator.getFloorNumber();
@@ -128,6 +143,7 @@ public class OpenDoorState implements ElevatorState {
 
             elevator.setCurrentState(new CloseDoorState(elevator));
         }
+
     }
 }
 

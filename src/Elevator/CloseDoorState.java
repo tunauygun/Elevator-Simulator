@@ -64,11 +64,13 @@ public class CloseDoorState implements ElevatorState {
         // Close the door
         LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Closing Door");
         try {
+            elevator.setDeadline((LOADING_TIME / 2) + (elevator.getSubsystem().getBoardingPassengerCount() * BOARDING_TIME_PER_PASSENGER));
+            elevator.setTime((LOADING_TIME / 2) + (elevator.getSubsystem().getBoardingPassengerCount() * BOARDING_TIME_PER_PASSENGER));
+            elevator.setTotalTime((LOADING_TIME / 2) + (elevator.getSubsystem().getBoardingPassengerCount() * BOARDING_TIME_PER_PASSENGER));
             Thread.sleep((LOADING_TIME / 2) + (elevator.getSubsystem().getBoardingPassengerCount() * BOARDING_TIME_PER_PASSENGER));
-            LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Boarding Passenger Count: " + elevator.getSubsystem().getBoardingPassengerCount() + " WaitTime: " + ((LOADING_TIME / 2) + (elevator.getSubsystem().getBoardingPassengerCount() * BOARDING_TIME_PER_PASSENGER)));
+            LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Boarding Passenger Count: " + elevator.getSubsystem().getBoardingPassengerCount());
         } catch (InterruptedException e) {
         }
-        // TODO: Add sleep times to the time variable
         LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Door Closed");
 
         // Update the door and lamp flags
