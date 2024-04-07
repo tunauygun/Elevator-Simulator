@@ -17,12 +17,13 @@ public class Elevator implements Runnable {
     private ElevatorRequest primaryRequest;
     private ElevatorState currentState;
     private Direction direction;
-    private int floorNumber;
+    private int floorNumber, movements;
     private boolean motorRunning;
     private boolean doorOpen;
     private int elevatorId;
     private boolean autoRun;
-    double time, deadline;
+    private double time, deadline, totalTime;
+
     private UDPSenderReceiver senderReceiver;
 
     /**
@@ -44,6 +45,8 @@ public class Elevator implements Runnable {
         this.currentState = new IdleState(this);
         this.time = 0.0;
         this.deadline = 0.0;
+        this.movements = 0;
+        this.totalTime = 0.0;
     }
 
     /**
@@ -60,6 +63,8 @@ public class Elevator implements Runnable {
     public double getTime() {
         return time;
     }
+    public double getTotalTime(){return totalTime;}
+    public void setTotalTime(double t){this.totalTime+=t;}
     public void setTime(double var) {
         this.time = var + getTime();
     }
@@ -67,6 +72,8 @@ public class Elevator implements Runnable {
     public double getDeadline() {
         return deadline;
     }
+    public int getMovements(){return movements;}
+    public void setMovements(int moving){this.movements+=moving;}
     public void setDeadline(double var) {
         this.deadline = var + getDeadline();
     }

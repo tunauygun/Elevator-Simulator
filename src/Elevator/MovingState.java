@@ -41,13 +41,16 @@ public class MovingState implements ElevatorState {
         LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Current floor: " + elevator.getFloorNumber());
 
         elevator.setMotorRunning(true);
+
+        elevator.getSubsystem().clearBoardingCounters();
 ;
         // Set the expected deadline for the elevator (1.5x the total move time per floor)
         elevator.synchDeadline();
-        elevator.setDeadline(1.5 * BASE_MOVE_TIME);
 
         try {
             elevator.setTime(BASE_MOVE_TIME / 2);
+            elevator.setTotalTime(BASE_MOVE_TIME / 2);
+            elevator.setDeadline(BASE_MOVE_TIME / 2);
             Thread.sleep(BASE_MOVE_TIME / 2);
         } catch (InterruptedException e) {
         }
@@ -67,11 +70,14 @@ public class MovingState implements ElevatorState {
             }
 
             //Increase deadline
-            elevator.setDeadline(1.5 * INCREMENTAL_MOVE_TIME);
+
 
             //Simulate Elevator Moving, increase time
             try {
+                elevator.setDeadline(INCREMENTAL_MOVE_TIME);
                 elevator.setTime(INCREMENTAL_MOVE_TIME);
+                elevator.setTotalTime(INCREMENTAL_MOVE_TIME);
+                elevator.setMovements(1);
                 Thread.sleep(INCREMENTAL_MOVE_TIME);
             } catch (InterruptedException e) {
             }
@@ -84,10 +90,11 @@ public class MovingState implements ElevatorState {
 
         try {
             elevator.setTime(BASE_MOVE_TIME / 2);
+            elevator.setTotalTime(BASE_MOVE_TIME / 2);
+            elevator.setDeadline(BASE_MOVE_TIME / 2);
             Thread.sleep(BASE_MOVE_TIME / 2);
         } catch (InterruptedException e) {
         }
-
         //Check for Hard Fault
         LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Deadline: " + elevator.getDeadline() + " Time: " + elevator.getTime());
 

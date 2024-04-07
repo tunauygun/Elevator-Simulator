@@ -1,9 +1,6 @@
 package Elevator;
 
-import Common.LogPrinter;
-import Common.RequestStatus;
-import Common.SystemRequest;
-import Common.UDPSenderReceiver;
+import Common.*;
 
 import static Common.Constants.*;
 import static Common.SystemRequestType.*;
@@ -45,10 +42,20 @@ public class CloseDoorState implements ElevatorState {
 
         // Check if we picked up the passenger for the primary request
         if (elevator.getPrimaryRequest().getCurrentTargetFloor() == elevator.getFloorNumber() && elevator.getPrimaryRequest().getStatus() == RequestStatus.PENDING) {
-            elevator.getPrimaryRequest().setStatus(RequestStatus.PASSENGER_PICKED_UP);
-            elevator.setDirection(elevator.getPrimaryRequest().getDirection());
-            elevator.getSubsystem().setElevatorLamps(elevator.getPrimaryRequest().getCarButton(), true);
-            LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Picked up passenger for primary request");
+            if(elevator.getSubsystem().isAtMaxCapacity()){
+                ElevatorRequest newPrimaryRequest = elevator.getSubsystem().switchPrimaryRequest(elevator.getPrimaryRequest());
+                elevator.setPrimaryRequest(newPrimaryRequest);
+                elevator.setDirection(elevator.getPrimaryRequest().getDirection());
+                LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Couldn't pick up passenger for primary request. Elevator was full.");
+                LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Switching to a new primary request: " + newPrimaryRequest);
+            }else{
+                elevator.getSubsystem().updateCountersForBoardingPassengers();
+                elevator.getPrimaryRequest().setStatus(RequestStatus.PASSENGER_PICKED_UP);
+                elevator.setDirection(elevator.getPrimaryRequest().getDirection());
+                elevator.getSubsystem().setElevatorLamps(elevator.getPrimaryRequest().getCarButton(), true);
+                LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Picked up passenger for primary request");
+            }
+
         }
 
         // Process any request at the current floor by picking up passengers
@@ -57,10 +64,13 @@ public class CloseDoorState implements ElevatorState {
         // Close the door
         LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Closing Door");
         try {
-            Thread.sleep(LOADING_TIME / 2);
+            elevator.setDeadline((LOADING_TIME / 2) + (elevator.getSubsystem().getBoardingPassengerCount() * BOARDING_TIME_PER_PASSENGER));
+            elevator.setTime((LOADING_TIME / 2) + (elevator.getSubsystem().getBoardingPassengerCount() * BOARDING_TIME_PER_PASSENGER));
+            elevator.setTotalTime((LOADING_TIME / 2) + (elevator.getSubsystem().getBoardingPassengerCount() * BOARDING_TIME_PER_PASSENGER));
+            Thread.sleep((LOADING_TIME / 2) + (elevator.getSubsystem().getBoardingPassengerCount() * BOARDING_TIME_PER_PASSENGER));
+            LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Boarding Passenger Count: " + elevator.getSubsystem().getBoardingPassengerCount());
         } catch (InterruptedException e) {
         }
-        // TODO: Add sleep times to the time variable
         LogPrinter.print(elevatorId, "Elevator " + elevatorId + " Door Closed");
 
         // Update the door and lamp flags
