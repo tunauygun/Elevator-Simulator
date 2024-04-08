@@ -2,7 +2,7 @@ SYSC3303-A2-4
 
 SYSC 3303 A
 Lab A2 Group 4
-Iteration 4
+Iteration 5
 
 Group Members:
     Naveen Sajeendran, 101252825
@@ -77,15 +77,14 @@ Inside the Scheduler folder
 
 --- RUNNING THE PROJECT ---
 To set this up:
-    1) Open IntelliJ and open the folder from Iteration 3
+    1) Open IntelliJ and open the project folder
     2) Then go into the src folder which has all the code files and folders and open them all in IntelliJ
     3) Go to Scheduler folder and run the Main.java file
     4) Go to Elevator folder and run the Main.java file
     5) Go to the Floor folder and run the Main.java file
 
 --- TASK BREAKDOWN ---
-Code: Tuna, Ethan and Sanay
-readMe File: Naveen
+Code: Ethan, Naveen, Sanay, Tuna and Ugonna
 UML Class Diagram : Ethan
 UML Sequence Diagram: Sanay
 Timing Diagram: Sanay
