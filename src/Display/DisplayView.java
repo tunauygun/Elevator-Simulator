@@ -18,12 +18,17 @@ public class DisplayView extends JFrame implements Runnable{
     //View Component for Elevator Display
     private static final int REFRESH_DELAY = 100;
     private ArrayList<Elevator> elevators = new ArrayList<Elevator>();
+
+    private JLabel[][] elevatorLabels;
+    private JPanel[] elevatorPanels;
     //JPanels
     private JPanel center;
     private JScrollPane sp;
     public DisplayView(ArrayList<Elevator> elevatorList) {
         super("Elevator UI");
         this.elevators = elevatorList;
+        this.elevatorLabels = new JLabel[elevatorList.size()][4];
+        this.elevatorPanels = new JPanel[elevatorList.size()];
 
         //Frame settings
         this.setSize(720,550);
@@ -49,10 +54,9 @@ public class DisplayView extends JFrame implements Runnable{
 
     //View Stuff
     public void displayElevators() {
-        //Clear the Area
-        clearPanel(this.center);
+        for (int i = 0; i < this.elevators.size(); i++) {
+            Elevator elevator = this.elevators.get(i);
 
-        for (Elevator elevator : this.elevators) {
             // Create the Elev Panel
             JPanel elevPanel = new JPanel();
             elevPanel.setSize(new Dimension(320, 480)); // Increased width
@@ -68,6 +72,12 @@ public class DisplayView extends JFrame implements Runnable{
             JLabel floorLabel = new JLabel("Floor: " + elevator.getFloorNumber());
             JLabel directionLabel = new JLabel("Direction: " + elevator.getDirection());
             JLabel doorLabel = new JLabel("Door Open: " + elevator.isDoorOpen());
+
+            elevatorPanels[i] = elevPanel;
+            elevatorLabels[i][0] = idLabel;
+            elevatorLabels[i][1] = floorLabel;
+            elevatorLabels[i][2] = directionLabel;
+            elevatorLabels[i][3] = doorLabel;
 
             // Add Labels to ElevInfo
             elevInfo.add(idLabel);
@@ -99,6 +109,35 @@ public class DisplayView extends JFrame implements Runnable{
         this.sp.setViewport(this.sp.getViewport());
     }
 
+    public void updateDisplay() {
+        for (int i = 0; i < this.elevators.size(); i++) {
+            Elevator elevator = this.elevators.get(i);
+            JPanel elevPanel = elevatorPanels[i];
+
+            //Create Labels for Elev Info
+            JLabel idLabel = new JLabel("Elevator ID: " + elevator.getElevatorId());
+            JLabel floorLabel = new JLabel("Floor: " + elevator.getFloorNumber());
+            JLabel directionLabel = new JLabel("Direction: " + elevator.getDirection());
+            JLabel doorLabel = new JLabel("Door Open: " + elevator.isDoorOpen());
+
+            elevatorLabels[i][0].setText("Elevator ID: " + elevator.getElevatorId());
+            elevatorLabels[i][1].setText("Floor: " + elevator.getFloorNumber());
+            elevatorLabels[i][2].setText("Direction: " + elevator.getDirection());
+            elevatorLabels[i][3].setText("Door Open: " + elevator.isDoorOpen());
+
+            //Revalidate/Repaint
+            elevPanel.revalidate();
+            elevPanel.repaint();
+
+
+            //Add Panel to Center
+//            this.center.add(elevPanel);
+        }
+
+        //Update Viewport for ScrollPane
+//        this.sp.setViewport(this.sp.getViewport());
+    }
+
     public void addElevator(Elevator elevator) {
         this.elevators.add(elevator);
         this.center.revalidate();
@@ -118,9 +157,10 @@ public class DisplayView extends JFrame implements Runnable{
     @Override
     public void run() {
         //Regularly Update the View
+        displayElevators();
         while(true) {
             //Update Elevator Display
-            displayElevators();
+            updateDisplay();
 
             try {
                 Thread.sleep(REFRESH_DELAY);
