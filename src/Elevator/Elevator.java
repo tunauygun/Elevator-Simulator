@@ -3,6 +3,8 @@ package Elevator;
 import Common.*;
 import Common.FaultType;
 
+import java.util.ArrayList;
+
 /**
  * Elevator.java
  * <p>
@@ -12,7 +14,6 @@ import Common.FaultType;
  * @version 3.0, March 17, 2024
  */
 public class Elevator implements Runnable {
-
     private ElevatorSubsystem subsystem;
     private ElevatorRequest primaryRequest;
     private ElevatorState currentState;
@@ -25,6 +26,7 @@ public class Elevator implements Runnable {
     double time, deadline;
     private UDPSenderReceiver senderReceiver;
 
+    public static ArrayList<Elevator> elevList = new ArrayList<Elevator>();
     /**
      * Constructs a new Elevator instance.
      *
@@ -44,6 +46,8 @@ public class Elevator implements Runnable {
         this.currentState = new IdleState(this);
         this.time = 0.0;
         this.deadline = 0.0;
+
+        elevList.add(this);
     }
 
     /**

@@ -129,6 +129,14 @@ public class FloorSubsystem implements Runnable {
         System.out.println("Set floor lamp: Direction = " + direction + " State = " + (state ? "ON" : "OFF"));
     }
 
+    public ArrayList<Floor> getFloors() {
+        return this.floors;
+    }
+
+    public int getNumberOfFloors() {
+        return this.numberOfFloors;
+    }
+
 
     /**
      * Keeps checking the floors for new elevator request and sends any request

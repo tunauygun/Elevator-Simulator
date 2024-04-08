@@ -273,4 +273,12 @@ public class ElevatorSubsystem {
         }
         return requestsNotPicked;
     }
+
+    public ArrayList<ElevatorRequest> getUpRequests() {
+        return this.getUpRequests();
+    }
+
+    public ArrayList<ElevatorRequest> getDownRequests() {
+        return this.getDownRequests();
+    }
 }

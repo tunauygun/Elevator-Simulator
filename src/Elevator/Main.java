@@ -1,6 +1,8 @@
 package Elevator;
 
 import Common.Constants;
+import Common.LogPrinter;
+import Display.DisplayView;
 
 import java.util.ArrayList;
 
@@ -11,6 +13,9 @@ import java.util.ArrayList;
  */
 public class Main {
     public static void main(String[] args) {
+        //ArrayList for Storing Elevator Objects
+
+
         for (int elevatorId = 0; elevatorId < Constants.NUMBER_OF_ELEVATORS; elevatorId++) {
             // Instantiate Elevator and Floor Subsystem
             ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem(elevatorId);
@@ -20,9 +25,14 @@ public class Main {
             Thread elevator = new Thread(elev, "Elevator" + elevatorId);
             Thread elevatorController = new Thread(elevatorCont, "ElevatorController" + elevatorId);
 
+            //Create the Elevator UI
+            DisplayView display = new DisplayView(Elevator.elevList);
+            Thread displayView = new Thread(display, "DisplayView");
+
             // Start the elevator and floor thread
             elevator.start();
             elevatorController.start();
+            displayView.start();
         }
     }
 }

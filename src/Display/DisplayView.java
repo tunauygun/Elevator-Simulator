@@ -1,32 +1,39 @@
 package Display;
 
 //Imports
+import Common.Constants;
+import Common.ElevatorRequest;
+import Common.FaultType;
 import Elevator.Elevator;
 import Elevator.ElevatorSubsystem;
+import Floor.Floor;
+import Floor.FloorSubsystem;
 import javax.swing.*;
 import java.awt.*;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 
-public class DisplayView extends JFrame{
+public class DisplayView extends JFrame implements Runnable{
     //View Component for Elevator Display
-    private final DisplayController controller;
+    private static final int REFRESH_DELAY = 100;
     private ArrayList<Elevator> elevators = new ArrayList<Elevator>();
     //JPanels
     private JPanel center;
     private JScrollPane sp;
-    public DisplayView(DisplayController controller) {
+    public DisplayView(ArrayList<Elevator> elevatorList) {
         super("Elevator UI");
-        this.controller = controller;
+        this.elevators = elevatorList;
 
         //Frame settings
-        this.setSize(720,480);
+        this.setSize(720,550);
         this.setLayout(new BorderLayout());
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         //Create Center Panel for Elevator Info
         this.center = new JPanel();
-        this.center.setLayout(new BoxLayout(this.center, BoxLayout.LINE_AXIS));
-        this.center.setPreferredSize(new Dimension(720, 240));
+        this.center.setLayout(new GridLayout(1, 0));
+        this.center.setPreferredSize(new Dimension(720, 480));
 
         //Create Scroll Pane for Center Panel
         this.sp = new JScrollPane(this.center);
@@ -41,58 +48,111 @@ public class DisplayView extends JFrame{
     }
 
     //View Stuff
-    public JPanel elevatorInfoPanel(Elevator elevator) {
-        //Create the Elev Panel
-        JPanel elevPanel = new JPanel();
-        elevPanel.setMinimumSize(new Dimension(320, 240));
-        elevPanel.setLayout(new GridLayout(4,1));
+    public void displayElevators() {
+        //Clear the Area
+        clearPanel(this.center);
 
-        // Create JTextArea to hold elevator information
-        JTextArea elevInfo = new JTextArea();
-        elevInfo.setEditable(false); // Set to non-editable
-        elevInfo.append("Elevator ID: " + elevator.getElevatorId() + "\n");
-        elevInfo.append("Floor: " + elevator.getFloorNumber() + "\n");
-        elevInfo.append("Direction: " + elevator.getDirection() + "\n");
-        elevInfo.append("Door Open: " + elevator.isDoorOpen() + "\n");
+        for (Elevator elevator : this.elevators) {
+            // Create the Elev Panel
+            JPanel elevPanel = new JPanel();
+            elevPanel.setSize(new Dimension(320, 480)); // Increased width
+            elevPanel.setLayout(new GridLayout(1,1));
 
-        // Add JTextArea to Panel
-        elevPanel.add(elevInfo, BorderLayout.CENTER);
+            //Create Elev Info Panel
+            JPanel elevInfo = new JPanel();
+            elevInfo.setPreferredSize(new Dimension(320, 120));
+            elevInfo.setLayout(new GridLayout(4, 1));
 
-        //Formatting for the Panel
-        elevPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+            //Create Labels for Elev Info
+            JLabel idLabel = new JLabel("Elevator ID: " + elevator.getElevatorId());
+            JLabel floorLabel = new JLabel("Floor: " + elevator.getFloorNumber());
+            JLabel directionLabel = new JLabel("Direction: " + elevator.getDirection());
+            JLabel doorLabel = new JLabel("Door Open: " + elevator.isDoorOpen());
 
-        return elevPanel;
+            // Add Labels to ElevInfo
+            elevInfo.add(idLabel);
+            elevInfo.add(floorLabel);
+            elevInfo.add(directionLabel);
+            elevInfo.add(doorLabel);
+
+            //Add Border
+            elevInfo.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
+            //Add ElevInfo and FloorInfo to ElevPanel
+            elevPanel.add(elevInfo);
+
+            //ToDo Floor Info
+
+            // Formatting for the Panel
+            elevPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+
+            //Revalidate/Repaint
+            elevPanel.revalidate();
+            elevPanel.repaint();
+
+
+            //Add Panel to Center
+            this.center.add(elevPanel);
+        }
+
+        //Update Viewport for ScrollPane
+        this.sp.setViewport(this.sp.getViewport());
     }
 
     public void addElevator(Elevator elevator) {
         this.elevators.add(elevator);
-        this.center.add(elevatorInfoPanel(elevator));
         this.center.revalidate();
         this.center.repaint();
     }
 
-    public void updateDisplay() {
-
+    private void clearPanel(JPanel panel) {
+        //Clear Components from Panel
+        for (Component component : panel.getComponents()) {
+            panel.remove(component);
+        }
+        //Revalidate and Repaint
+        panel.revalidate();
+        panel.repaint();
     }
 
+    @Override
+    public void run() {
+        //Regularly Update the View
+        while(true) {
+            //Update Elevator Display
+            displayElevators();
+
+            try {
+                Thread.sleep(REFRESH_DELAY);
+            } catch (InterruptedException ie) {
+                ie.printStackTrace();
+                System.exit(1);
+            }
+        }
+    }
 
     public static void main(String[] args) {
-        DisplayController controller = new DisplayController();
-        ElevatorSubsystem sub = new ElevatorSubsystem(0);
-        Elevator elev0 = new Elevator(sub, 0, false);
-        Elevator elev1 = new Elevator(sub, 1, false);
-        Elevator elev2 = new Elevator(sub, 2, false);
-        Elevator elev3 = new Elevator(sub, 3, false);
-        Elevator elev4 = new Elevator(sub, 4, false);
-        Elevator elev5 = new Elevator(sub, 5, false);
+        //Elevator and Floor Subsystem
+        FloorSubsystem fsub = new FloorSubsystem("test.txt", 22);
 
+        //Elevators for Testing
+        ElevatorSubsystem esub0 = new ElevatorSubsystem(0);
+        Elevator elev0 = new Elevator(esub0, 0, false);
+        ElevatorSubsystem esub1 = new ElevatorSubsystem(1);
+        Elevator elev1 = new Elevator(esub1, 1, false);
+        ElevatorSubsystem esub2 = new ElevatorSubsystem(2);
+        Elevator elev2 = new Elevator(esub2, 2, false);
+        ElevatorSubsystem esub3 = new ElevatorSubsystem(3);
+        Elevator elev3 = new Elevator(esub3, 3, false);
+        ElevatorSubsystem esub4 = new ElevatorSubsystem(4);
+        Elevator elev4 = new Elevator(esub4, 4, false);
+        ElevatorSubsystem esub5 = new ElevatorSubsystem(0);
+        Elevator elev5 = new Elevator(esub5, 5, false);
 
-        DisplayView view = new DisplayView(controller);
-        view.addElevator(elev0);
-        view.addElevator(elev1);
-        view.addElevator(elev2);
-        view.addElevator(elev3);
-        view.addElevator(elev4);
-        view.addElevator(elev5);
+        //View
+        DisplayView view = new DisplayView(Elevator.elevList);
+
+        //Test Displaying Info
+        view.displayElevators();
     }
 }
