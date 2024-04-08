@@ -162,4 +162,9 @@ public class Floor {
     public boolean getFloorLampDown() {
         return floorLampDown;
     }
+
+    public int getFloorNumber() { return this.floorNumber;}
+
+    public boolean isFirstFloor() { return this.isFirstFloor;}
+    public boolean isLastFloor() {return this.isLastFloor;}
 }

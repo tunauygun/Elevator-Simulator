@@ -284,6 +284,13 @@ public class ElevatorSubsystem {
         return requestsNotPicked;
     }
 
+    public ArrayList<ElevatorRequest> getUpRequests() {
+        return this.getUpRequests();
+    }
+
+    public ArrayList<ElevatorRequest> getDownRequests() {
+        return this.getDownRequests();
+      
     public synchronized ElevatorRequest switchPrimaryRequest(ElevatorRequest oldPrimaryRequest) {
 
         if(oldPrimaryRequest.getFloorButton().toLowerCase().equals("up")){
