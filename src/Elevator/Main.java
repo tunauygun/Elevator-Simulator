@@ -25,14 +25,15 @@ public class Main {
             Thread elevator = new Thread(elev, "Elevator" + elevatorId);
             Thread elevatorController = new Thread(elevatorCont, "ElevatorController" + elevatorId);
 
-            //Create the Elevator UI
-            DisplayView display = new DisplayView(Elevator.elevList);
-            Thread displayView = new Thread(display, "DisplayView");
-
             // Start the elevator and floor thread
             elevator.start();
             elevatorController.start();
-            displayView.start();
+
         }
+
+        //Create the Elevator UI
+        DisplayView display = new DisplayView(Elevator.elevList);
+        Thread displayView = new Thread(display, "DisplayView");
+        displayView.start();
     }
 }
