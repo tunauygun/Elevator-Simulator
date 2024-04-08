@@ -290,6 +290,7 @@ public class ElevatorSubsystem {
 
     public ArrayList<ElevatorRequest> getDownRequests() {
         return this.getDownRequests();
+    }
       
     public synchronized ElevatorRequest switchPrimaryRequest(ElevatorRequest oldPrimaryRequest) {
 
