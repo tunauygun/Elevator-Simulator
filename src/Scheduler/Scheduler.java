@@ -109,6 +109,10 @@ public class Scheduler implements Runnable {
                         int bestElevatorId = selectBestElevatorNumber(r);
                         senderReceiver2.sendSystemRequest(new SystemRequest(ADD_NEW_REQUEST, r, 0), elevatorPorts[bestElevatorId]);
                         System.out.println("Reassigning the request to Elevator " + bestElevatorId);
+                        //if(bestElevatorId != -1){
+                        //    senderReceiver2.sendSystemRequest(new SystemRequest(ADD_NEW_REQUEST, r, 0), elevatorPorts[bestElevatorId]);
+                        //    System.out.println("Reassigning the request to Elevator " + bestElevatorId);
+                        //}
                     }
 
                 }

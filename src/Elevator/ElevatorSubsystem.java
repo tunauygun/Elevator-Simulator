@@ -24,6 +24,9 @@ public class ElevatorSubsystem {
     private ArrayList<ElevatorRequest> upRequests = new ArrayList<>();
     private boolean hasWaitingRequests;
     public ArrayList<Boolean> elevatorLamps = new ArrayList<>();
+    private int passengerCount;
+    private int boardingPassengerCount;
+    private int unboardingPassengerCount;
 
     private final int elevatorId;
 
@@ -34,6 +37,9 @@ public class ElevatorSubsystem {
      */
     public ElevatorSubsystem(int elevatorId) {
         this.elevatorId = elevatorId;
+        this.passengerCount = 0;
+        this.boardingPassengerCount = 0;
+        this.unboardingPassengerCount = 0;
         this.hasWaitingRequests = false;
 
         // Initialize all elevator laps at off state
@@ -117,6 +123,7 @@ public class ElevatorSubsystem {
                     LogPrinter.print(this.elevatorId, "Elevator " + this.elevatorId + ": Completed Request: " + r);
                     this.setElevatorLamps(r.getCarButton(), false);
                     iterator.remove();
+                    updateCountersForUnboardingPassengers();
                 }
             }
         } else {
@@ -130,6 +137,7 @@ public class ElevatorSubsystem {
                     LogPrinter.print(this.elevatorId, "Elevator " + this.elevatorId + ": Completed Request: " + r);
                     this.setElevatorLamps(r.getCarButton(), false);
                     iterator.remove();
+                    updateCountersForUnboardingPassengers();
                 }
             }
         }
@@ -151,7 +159,8 @@ public class ElevatorSubsystem {
     public synchronized void processRequestsAtCurrentFloor(int floorNumber, Direction direction) {
         if (direction == Direction.UP) {
             for (ElevatorRequest r : this.upRequests) {
-                if (r.getCurrentTargetFloor() == floorNumber && r.getStatus() == RequestStatus.PENDING) {
+                if (r.getCurrentTargetFloor() == floorNumber && r.getStatus() == RequestStatus.PENDING && passengerCount < MAX_PASSENGER_COUNT) {
+                    updateCountersForBoardingPassengers();
                     r.setStatus(RequestStatus.PASSENGER_PICKED_UP);
                     this.setElevatorLamps(r.getCarButton(), true);
                     LogPrinter.print(this.elevatorId, "Elevator " + this.elevatorId + ": Picked up passenger: " + r);
@@ -159,7 +168,8 @@ public class ElevatorSubsystem {
             }
         } else {
             for (ElevatorRequest r : this.downRequests) {
-                if (r.getCurrentTargetFloor() == floorNumber && r.getStatus() == RequestStatus.PENDING) {
+                if (r.getCurrentTargetFloor() == floorNumber && r.getStatus() == RequestStatus.PENDING && passengerCount < MAX_PASSENGER_COUNT) {
+                    updateCountersForBoardingPassengers();
                     r.setStatus(RequestStatus.PASSENGER_PICKED_UP);
                     this.setElevatorLamps(r.getCarButton(), true);
                     LogPrinter.print(this.elevatorId, "Elevator " + this.elevatorId + ": Picked up passenger: " + r);
@@ -280,5 +290,56 @@ public class ElevatorSubsystem {
 
     public ArrayList<ElevatorRequest> getDownRequests() {
         return this.getDownRequests();
+      
+    public synchronized ElevatorRequest switchPrimaryRequest(ElevatorRequest oldPrimaryRequest) {
+
+        if(oldPrimaryRequest.getFloorButton().toLowerCase().equals("up")){
+            this.upRequests.add(oldPrimaryRequest);
+        }else{
+            this.downRequests.add(oldPrimaryRequest);
+        }
+
+        // Check for partially processed request in UP direction
+        for (int i = 0; i < this.upRequests.size(); i++) {
+            if (this.upRequests.get(i).getStatus() == RequestStatus.PASSENGER_PICKED_UP) {
+                return this.upRequests.remove(i);
+            }
+        }
+
+        // Check for partially processed request in DOWN direction
+        for (int i = 0; i < this.downRequests.size(); i++) {
+            if (this.downRequests.get(i).getStatus() == RequestStatus.PASSENGER_PICKED_UP) {
+                return this.downRequests.remove(i);
+            }
+        }
+
+        return null;
+    }
+
+    public synchronized void updateCountersForBoardingPassengers() {
+        passengerCount++;
+        boardingPassengerCount++;
+    }
+
+    public synchronized void updateCountersForUnboardingPassengers() {
+        passengerCount--;
+        unboardingPassengerCount++;
+    }
+
+    public synchronized boolean isAtMaxCapacity() {
+        return passengerCount == MAX_PASSENGER_COUNT;
+    }
+
+    public synchronized void clearBoardingCounters() {
+        unboardingPassengerCount = 0;
+        boardingPassengerCount = 0;
+    }
+
+    public synchronized int getBoardingPassengerCount() {
+        return boardingPassengerCount;
+    }
+
+    public synchronized int getUnboardingPassengerCount() {
+        return unboardingPassengerCount;
     }
 }
