@@ -103,7 +103,6 @@ public class Elevator implements Runnable {
      * Sets the current state of the elevator and handles the state behavior.
      *
      * @param currentState The new state to set.
-     * @param autorunStates If true, states transitions causes the next state to start automatically
      */
     public void setCurrentState(ElevatorState currentState) {
         this.currentState = currentState;
